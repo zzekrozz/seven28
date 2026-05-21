@@ -5,8 +5,12 @@
   --red: #ff2a2a;
   --red-deep: #b80000;
   --cream: #f3ebe0;
-  --ash: #8a7a73;
+  --ash: #b8a9a1;
+  --muted-cream: #ddd2c8;
   --line: rgba(255, 42, 42, 0.25);
+  --font-reading: Georgia, "Times New Roman", Times, serif;
+  --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-system: "Space Mono", "Courier New", monospace;
 }
 
 html, body, #root {
@@ -17,7 +21,7 @@ html, body, #root {
 body {
   background: var(--bg);
   color: var(--cream);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;

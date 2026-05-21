@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   loadOrigin, saveOrigin, clearOrigin, NEUTRAL_ORIGIN,
+  initializeChapterState,
   buildOriginFromChapterOne,
   applyOption, resolveEnding
 } from './engine/engine.js';
@@ -10,6 +11,14 @@ import PlayScreen from './components/PlayScreen.jsx';
 import ConsequenceScreen from './components/ConsequenceScreen.jsx';
 import EndingScreen from './components/EndingScreen.jsx';
 import './styles.css';
+
+function appendVisitedNode(state, nextNodeId) {
+  const visitedNodes = Array.isArray(state?.visitedNodes) ? [...state.visitedNodes] : [];
+  if (visitedNodes[visitedNodes.length - 1] !== nextNodeId) {
+    visitedNodes.push(nextNodeId);
+  }
+  return { ...state, visitedNodes };
+}
 
 export default function App() {
   const [phase, setPhase] = useState('archive');
@@ -24,7 +33,6 @@ export default function App() {
   const phaseRef = useRef(phase);
   useEffect(() => { phaseRef.current = phase; }, [phase]);
 
-  // Tick del reloj — solo durante "playing"
   useEffect(() => {
     if (phase !== 'playing') return;
     const p = currentChapter?.pressure;
@@ -39,7 +47,6 @@ export default function App() {
     return () => clearInterval(id);
   }, [phase, currentChapter]);
 
-  // Si la presión llega a 0 en mitad de la partida → final
   useEffect(() => {
     if (phase !== 'playing' || !state || !currentChapter?.pressure?.endOnZero) return;
     const v = state[currentChapter.pressure.key];
@@ -52,8 +59,10 @@ export default function App() {
   const startChapter = (chapterId) => {
     const ch = CHAPTERS.find(c => c.id === chapterId);
     if (!ch) return;
-    const init = { ...ch.initialState, flags: [...(ch.initialState.flags || [])] };
-    if (ch.pressure) init[ch.pressure.key] = ch.pressure.initial;
+    const init = {
+      ...initializeChapterState(ch),
+      visitedNodes: [ch.startNode]
+    };
     setCurrentChapter(ch);
     setState(init);
     setNodeId(ch.startNode);
@@ -63,12 +72,12 @@ export default function App() {
     setPhase('playing');
   };
 
-  const finishChapter = (finalState) => {
-    const eid = resolveEnding(finalState, currentChapter);
+  const finishChapter = (finalState, explicitEndingId = null) => {
+    const eid = explicitEndingId || resolveEnding(finalState, currentChapter);
     setState(finalState);
     setEndingId(eid);
     setPhase('ending');
-    if (currentChapter.id === 'señal') {
+    if (currentChapter.id === 'signal') {
       const newOrigin = buildOriginFromChapterOne(finalState, eid, currentChapter);
       setOrigin(newOrigin);
       saveOrigin(newOrigin);
@@ -92,9 +101,12 @@ export default function App() {
     const pkey = currentChapter.pressure?.key;
     const ranOut = currentChapter.pressure?.endOnZero && (state[pkey] ?? 1) <= 0;
 
-    if (next === 'ending' || ranOut) {
-      finishChapter(state);
+    const isDirectEnding = Boolean(currentChapter?.endings?.[next]);
+
+    if (next === 'ending' || isDirectEnding || ranOut) {
+      finishChapter(state, isDirectEnding ? next : null);
     } else {
+      setState(s => appendVisitedNode(s, next));
       setNodeId(next);
       setPhase('playing');
     }

@@ -3,10 +3,10 @@
 // Ningún capítulo lee del motor. El motor lee del JSON.
 // ============================================================
 
-export const ORIGIN_KEY = "seven28_origin_v1";
+export const ORIGIN_KEY = "seven28_origin_v2";
 
 export const NEUTRAL_ORIGIN = {
-  version: 1,
+  version: 2,
   chapter: null,
   ending: null,
   originTitle: null,
@@ -15,17 +15,21 @@ export const NEUTRAL_ORIGIN = {
   helpedNeighbor: false,
   ignoredNeighbor: false,
   calledFamily: false,
+  sentLocation: false,
   foundMap: false,
   hasRadio: false,
   hasWater: false,
   hasFlashlight: false,
   hasMedicine: false,
+  hasFamilyPhoto: false,
   hasDocuments: false,
   injured: false,
   humanity: 0,
   preparation: 0,
   information: 0,
   panic: 0,
+  preparationLevel: "low",
+  informationLevel: "low",
   panicLevel: "low",
   humanityLevel: "low",
   timestamp: null
@@ -90,6 +94,32 @@ function parseLiteral(v) {
   if (v === "false") return false;
   if (!isNaN(Number(v))) return Number(v);
   return v;
+}
+
+function cloneInitialState(chapter) {
+  return {
+    ...chapter.initialState,
+    flags: [...(chapter.initialState?.flags || [])]
+  };
+}
+
+function pickEventFlag(flags) {
+  if (!Array.isArray(flags) || flags.length === 0) return null;
+  const index = Math.floor(Math.random() * flags.length);
+  return flags[index];
+}
+
+export function initializeChapterState(chapter) {
+  const init = cloneInitialState(chapter);
+  if (chapter.pressure?.key && chapter.pressure?.initial !== undefined) {
+    init[chapter.pressure.key] = chapter.pressure.initial;
+  }
+
+  const buildingEvent = pickEventFlag(chapter.controlledEvents?.building);
+  const streetEvent = pickEventFlag(chapter.controlledEvents?.street);
+  if (buildingEvent && !init.flags.includes(buildingEvent)) init.flags.push(buildingEvent);
+  if (streetEvent && !init.flags.includes(streetEvent)) init.flags.push(streetEvent);
+  return init;
 }
 
 // Resuelve texto: primer variant que matchea gana, sino base
@@ -166,6 +196,9 @@ export function applyOption(state, option, chapter) {
 // Reglas de final
 // ============================================================
 function ruleMatches(rule, state) {
+  if (typeof rule.if === "string") {
+    return evalCondition(rule.if, { state, origin: null });
+  }
   const r = rule.if;
   if (r.flag && !state.flags.includes(r.flag)) return false;
   if (r.timeLeftMin !== undefined && state.timeLeft < r.timeLeftMin) return false;
@@ -227,26 +260,29 @@ export function clearOrigin() {
 // Construye originState a partir del estado final del capítulo 1
 export function buildOriginFromChapterOne(state, endingId, chapter) {
   const route =
-    state.flags.includes("wentToBasement") ? "basement" :
-    state.flags.includes("wentToMetro") ? "metro" :
-    state.flags.includes("wentToOfficialShelter") ? "official" : "none";
+    state.flags.includes("routeAlternate") ? "alternate" :
+    state.flags.includes("routeMetro") ? "metro" :
+    state.flags.includes("routeImprovised") ? "improvised" :
+    state.flags.includes("routeOfficial") ? "official" : "none";
 
   const ending = chapter.endings[endingId] || {};
   const originTitle = ending.originTitle || ending.title || "—";
 
   // Resumen humano del canon
   const summaryParts = [];
-  if (state.flags.includes("helpedNeighbor")) summaryParts.push("ayudó a su vecina");
-  if (state.flags.includes("ignoredNeighbor")) summaryParts.push("dejó atrás a su vecina");
+  if (state.flags.includes("helpedNeighbor")) summaryParts.push("se detuvo a ayudar");
+  if (state.flags.includes("ignoredNeighbor")) summaryParts.push("dejó una deuda moral en el rellano");
   if (state.flags.includes("calledFamily")) summaryParts.push("llamó a su familia");
-  if (state.flags.includes("mapChecked")) summaryParts.push("buscó el mapa");
-  if (state.flags.includes("injuredLeg")) summaryParts.push("llegó herido");
+  if (state.flags.includes("sentLocation")) summaryParts.push("envió su ubicación antes de perder cobertura");
+  if (state.flags.includes("foundMap")) summaryParts.push("salió con una ruta en la cabeza");
+  if (state.flags.includes("injured")) summaryParts.push("llegó herido");
+  if (state.flags.includes("familyPhoto")) summaryParts.push("llevó consigo una foto para no irse del todo solo");
   const canonSummary = summaryParts.length > 0
     ? summaryParts.join(", ").replace(/, ([^,]*)$/, " y $1")
     : "no dejó mucho rastro";
 
   return {
-    version: 1,
+    version: 2,
     chapter: chapter.id,
     ending: endingId,
     originTitle,
@@ -255,19 +291,23 @@ export function buildOriginFromChapterOne(state, endingId, chapter) {
     helpedNeighbor: state.flags.includes("helpedNeighbor"),
     ignoredNeighbor: state.flags.includes("ignoredNeighbor"),
     calledFamily: state.flags.includes("calledFamily"),
-    foundMap: state.flags.includes("mapChecked"),
+    sentLocation: state.flags.includes("sentLocation"),
+    foundMap: state.flags.includes("foundMap"),
     hasRadio: state.flags.includes("radio"),
     hasWater: state.flags.includes("water"),
     hasFlashlight: state.flags.includes("flashlight"),
     hasMedicine: state.flags.includes("medicine"),
+    hasFamilyPhoto: state.flags.includes("familyPhoto"),
     hasDocuments: state.flags.includes("documents"),
-    injured: state.flags.includes("injuredLeg"),
+    injured: state.flags.includes("injured"),
     humanity: state.humanity,
     preparation: state.preparation,
     information: state.information,
     panic: state.panic,
-    panicLevel: state.panic >= 5 ? "high" : state.panic >= 3 ? "medium" : "low",
-    humanityLevel: state.humanity >= 5 ? "high" : state.humanity >= 2 ? "medium" : "low",
+    humanityLevel: state.humanity >= 6 ? "high" : state.humanity >= 3 ? "medium" : "low",
+    panicLevel: state.panic >= 7 ? "high" : state.panic >= 4 ? "medium" : "low",
+    preparationLevel: state.preparation >= 6 ? "high" : state.preparation >= 3 ? "medium" : "low",
+    informationLevel: state.information >= 6 ? "high" : state.information >= 3 ? "medium" : "low",
     timestamp: Date.now()
   };
 }
@@ -292,20 +332,175 @@ export const FLAG_LABELS = {
   water: "Agua",
   radio: "Radio de pilas",
   flashlight: "Linterna",
+  batteries: "Pilas",
   medicine: "Medicinas",
   documents: "Documentos",
+  cash: "Dinero en efectivo",
+  familyPhoto: "Foto familiar",
   keys: "Llaves",
   phone: "Móvil",
-  mapChecked: "Mapa memorizado",
-  officialShelterKnown: "Conoces el refugio oficial",
-  alternateShelterKnown: "Conoces el párking subterráneo",
-  calledFamily: "Llamaste a tu madre",
-  helpedNeighbor: "Bajaste con tu vecina",
-  ignoredNeighbor: "Dejaste a tu vecina en el rellano",
-  neighborWithYou: "Tu vecina va contigo",
-  injuredLeg: "Te has hecho daño en la pierna",
-  wentToBasement: "Vas al párking",
-  wentToMetro: "Vas al metro",
-  wentToOfficialShelter: "Vas al refugio oficial",
-  heardSecondSignal: "Has oído la segunda señal"
+  powerBank: "Batería externa",
+  map: "Mapa guardado",
+  warmClothes: "Ropa de abrigo",
+  multiTool: "Multiherramienta",
+  calledFamily: "Llamaste a tu familia",
+  sentLocation: "Enviaste tu ubicación",
+  foundMap: "Saliste con ruta",
+  helpedNeighbor: "Ayudaste a un vecino",
+  ignoredNeighbor: "Dejaste atrás a alguien",
+  injured: "Llegaste herido",
+  routeOfficial: "Ruta al refugio oficial",
+  routeMetro: "Ruta al metro",
+  routeAlternate: "Ruta alternativa",
+  routeImprovised: "Refugio improvisado"
 };
+
+const HINT_LIBRARY = {
+  metro_full_hint: "El metro puede estar saturado.",
+  avoid_main_avenue_hint: "Tu madre insistió en evitar la avenida principal.",
+  official_shelter_hint: "El sistema recomienda el refugio oficial.",
+  system_saturated: "Las líneas de emergencia están saturadas.",
+  whatsapp_sent: "El grupo de WhatsApp recibió tu aviso.",
+  family_contact: "Has conseguido contactar con alguien de tu familia.",
+  foundMap: "Conoces una ruta alternativa hacia el parking.",
+  has_flashlight: "Tienes una fuente de luz.",
+  flashlight: "Tienes una fuente de luz.",
+  has_powerbank: "Puedes alargar la vida del móvil.",
+  powerBank: "Puedes alargar la vida del móvil.",
+  emotional_anchor: "Una voz conocida te ha dado algo a lo que agarrarte.",
+  social_noise: "El ruido del grupo mezcla ayuda y pánico.",
+  officialShelterSaturated: "El refugio oficial puede estar ya desbordado.",
+  alternateRouteKnown: "Recuerdas una entrada lateral fuera del flujo principal.",
+  parkingKnown: "Sabes que hay un parking subterráneo cerca.",
+  sentLocation: "Has dejado una ubicación compartida antes de bajar."
+};
+
+const PLACE_LIBRARY = {
+  home: "Casa",
+  phone: "Teléfono",
+  building_stairs: "Escalera del edificio",
+  building_portal: "Portal",
+  street_main: "Calle principal",
+  street_side: "Calle lateral",
+  official_queue: "Refugio oficial",
+  metro_entrance: "Metro",
+  parking_entrance: "Parking subterráneo",
+  parking_lower: "Zona baja del parking",
+  improvised_columns: "Columnas del parking",
+  trasteros: "Zona de trasteros"
+};
+
+const INVENTORY_LIBRARY = [
+  { flags: ["documents", "has_documents"], label: "Documentos" },
+  { flags: ["familyPhoto", "has_photo"], label: "Foto" },
+  { flags: ["powerBank", "has_powerbank"], label: "Batería externa" },
+  { flags: ["has_charger"], label: "Cargador" },
+  { flags: ["flashlight", "has_flashlight"], label: "Linterna" },
+  { flags: ["medicine", "has_bandage"], label: "Venda / botiquín" },
+  { flags: ["keys", "has_keys"], label: "Llaves" },
+  { flags: ["map", "foundMap"], label: "Mapa" },
+  { flags: ["water", "has_water"], label: "Agua" },
+  { flags: ["radio", "has_radio"], label: "Radio" },
+  { flags: ["batteries"], label: "Pilas" },
+  { flags: ["warmClothes"], label: "Ropa de abrigo" },
+  { flags: ["multiTool"], label: "Multiherramienta" }
+];
+
+export function formatZoneLabel(zone) {
+  const labels = {
+    home: "CASA",
+    phone: "TELÉFONO",
+    building: "EDIFICIO",
+    stairs: "ESCALERA",
+    portal: "PORTAL",
+    street: "CALLE",
+    official_shelter: "REFUGIO OFICIAL",
+    metro: "METRO",
+    parking: "PARKING",
+    improvised_shelter: "REFUGIO IMPROVISADO",
+    ending: "FINAL"
+  };
+  return labels[zone] || "UBICACIÓN DESCONOCIDA";
+}
+
+export function getVisitedLocations(state, chapter) {
+  const nodeIds = Array.isArray(state?.visitedNodes) ? state.visitedNodes : [];
+  const labels = [];
+
+  for (const nodeId of nodeIds) {
+    const node = chapter?.nodes?.[nodeId];
+    const label = node?.location || node?.title;
+    if (!label) continue;
+    if (labels[labels.length - 1] !== label) labels.push(label);
+  }
+
+  return labels;
+}
+
+export function getKnownHints(state, currentNode) {
+  const hints = new Set();
+  const nodeHints = currentNode?.knownHints || [];
+
+  for (const flag of state?.flags || []) {
+    if (HINT_LIBRARY[flag]) hints.add(HINT_LIBRARY[flag]);
+  }
+  for (const hintKey of nodeHints) {
+    if (HINT_LIBRARY[hintKey]) hints.add(HINT_LIBRARY[hintKey]);
+  }
+
+  return [...hints];
+}
+
+export function getKnownPlaces(state, currentNode, chapter) {
+  const places = new Set();
+  const visitedNodes = Array.isArray(state?.visitedNodes) ? state.visitedNodes : [];
+
+  for (const nodeId of visitedNodes) {
+    const node = chapter?.nodes?.[nodeId];
+    if (node?.location) places.add(node.location);
+    for (const place of node?.knownPlaces || []) {
+      places.add(PLACE_LIBRARY[place] || place);
+    }
+  }
+
+  for (const place of currentNode?.knownPlaces || []) {
+    places.add(PLACE_LIBRARY[place] || place);
+  }
+
+  if (state?.flags?.includes("metro_full_hint") || state?.flags?.includes("routeMetro")) {
+    places.add("Metro");
+  }
+  if (
+    state?.flags?.includes("official_shelter_hint") ||
+    state?.flags?.includes("routeOfficial") ||
+    state?.flags?.includes("officialShelterKnown")
+  ) {
+    places.add("Refugio oficial");
+  }
+  if (
+    state?.flags?.includes("foundMap") ||
+    state?.flags?.includes("alternateRouteKnown") ||
+    state?.flags?.includes("parkingKnown") ||
+    state?.flags?.includes("routeAlternate")
+  ) {
+    places.add("Parking subterráneo");
+  }
+  if (state?.flags?.includes("routeImprovised")) {
+    places.add("Refugio improvisado");
+  }
+
+  return [...places];
+}
+
+export function getInventory(state) {
+  const inventory = [];
+  const flags = state?.flags || [];
+
+  for (const item of INVENTORY_LIBRARY) {
+    if (item.flags.some(flag => flags.includes(flag))) {
+      inventory.push(item.label);
+    }
+  }
+
+  return inventory;
+}

@@ -1,10 +1,10 @@
 {
-  "id": "señal",
+  "id": "signal",
   "title": "7:28",
   "subtitle": "LA SEÑAL",
-  "description": "Siete minutos y veintiocho segundos. Lo que decidas, lo decides ahora.",
-  "durationLabel": "~5 MIN",
-  "endingCount": 7,
+  "description": "Siete minutos y veintiocho segundos. Esta vez, el origen de la ruta sí importa.",
+  "durationLabel": "~10 MIN",
+  "endingCount": 10,
   "startNode": "living_room",
   "pressure": {
     "key": "timeLeft",
@@ -14,506 +14,2362 @@
     "tickPerSecond": true,
     "endOnZero": true
   },
+  "controlledEvents": {
+    "building": [
+      "stairwell_dark",
+      "neighbor_trapped",
+      "elevator_stuck",
+      "front_door_crowded"
+    ],
+    "street": [
+      "military_blockade",
+      "traffic_collapse",
+      "crowd_to_metro",
+      "siren_update"
+    ]
+  },
   "initialState": {
     "timeLeft": 448,
     "panic": 0,
     "humanity": 0,
     "preparation": 0,
     "information": 0,
+    "survival": 0,
+    "attachment": 0,
+    "autonomy": 0,
+    "systemTrust": 0,
+    "groupTrust": 0,
+    "observation": 0,
+    "impulsiveness": 0,
     "injury": 0,
     "guilt": 0,
     "trust": 0,
     "flags": []
   },
+  "mapLegend": [
+    {
+      "key": "home",
+      "label": "Casa",
+      "always": true
+    },
+    {
+      "key": "phone",
+      "label": "Telefono",
+      "always": true
+    },
+    {
+      "key": "building_stairs",
+      "label": "Escalera del edificio",
+      "always": true
+    },
+    {
+      "key": "building_portal",
+      "label": "Portal",
+      "always": true
+    },
+    {
+      "key": "street_main",
+      "label": "Calle",
+      "always": true
+    },
+    {
+      "key": "official_queue",
+      "label": "Refugio oficial"
+    },
+    {
+      "key": "metro_entrance",
+      "label": "Metro"
+    },
+    {
+      "key": "parking_entrance",
+      "label": "Parking subterraneo"
+    },
+    {
+      "key": "parking_lower",
+      "label": "Zona baja del parking"
+    },
+    {
+      "key": "improvised_columns",
+      "label": "Cobertura improvisada"
+    }
+  ],
   "nodes": {
     "living_room": {
       "id": "living_room",
       "title": "TRANSMISIÓN INTERRUMPIDA",
       "atmosphere": "alert",
       "icon": "📺",
-      "text": "La televisión cruje. Una franja roja cubre la pantalla. Una voz sintética repite la misma frase tres veces: 'ALERTA NACIONAL. ESTO NO ES UN SIMULACRO. Impacto estimado en 7 minutos y 28 segundos. Diríjase al refugio más cercano.'\n\nEl mando se cae al suelo. El reloj de la cocina marca las 19:42. Tienes que moverte.",
+      "text": "La pantalla se cubre de rojo. Una voz sintética repite la misma orden tres veces: \"ALERTA NACIONAL. ESTO NO ES UN SIMULACRO. IMPACTO ESTIMADO EN 7 MINUTOS Y 28 SEGUNDOS. DIRÍJASE AL REFUGIO MÁS CERCANO.\"\n\nEl mando se cae al suelo. El reloj marca las 19:42. Las primeras decisiones todavía parecen pequeñas. No lo son.",
       "options": [
         {
-          "icon": "🎒",
-          "label": "Coger una mochila y meter lo esencial",
-          "description": "Ir con las manos vacías es peor.",
-          "visibleHint": "Un momento",
-          "timeCost": 25,
-          "effects": { "preparation": 2 },
-          "addFlags": ["backpack"],
-          "next": "packing",
-          "afterChoiceText": "Coges la mochila del recibidor. Notas que cada segundo que pasa aquí es un segundo que no estás corriendo."
+          "icon": "🗺️",
+          "label": "Buscar mapa de refugios",
+          "description": "Prefieres perder segundos ahora antes que perderte después.",
+          "visibleHint": "Ruta de información",
+          "timeCost": 24,
+          "effects": {
+            "information": 1,
+            "preparation": 1,
+            "observation": 1
+          },
+          "addFlags": [
+            "phone"
+          ],
+          "next": "map_search",
+          "afterChoiceText": "Abres el móvil con dedos torpes. La cobertura aún aguanta. Quizá no por mucho."
         },
         {
           "icon": "🏃",
-          "label": "Salir corriendo ya, sin nada",
-          "description": "Ganas tiempo. Pierdes todo lo demás.",
-          "visibleHint": "Tiempo limitado",
-          "timeCost": 8,
-          "effects": { "panic": 3, "preparation": -1 },
-          "next": "hallway",
-          "afterChoiceText": "Sales de casa con lo puesto. Te das cuenta de que ni siquiera has cerrado la puerta. Da igual."
+          "label": "Salir corriendo",
+          "description": "El cuerpo decide antes que la cabeza.",
+          "visibleHint": "Ruta de velocidad",
+          "timeCost": 6,
+          "effects": {
+            "panic": 2,
+            "preparation": -1,
+            "survival": 1,
+            "impulsiveness": 2
+          },
+          "addFlags": [
+            "fastExit"
+          ],
+          "next": "rush_exit",
+          "afterChoiceText": "Abres la puerta sin mirar atrás. Durante un segundo ni siquiera recuerdas si llevas el móvil encima."
         },
         {
           "icon": "📱",
-          "label": "Llamar a tu familia primero",
-          "description": "Necesitan saberlo. ¿O necesitas oírlos tú?",
-          "visibleHint": "Lo que tarde la llamada",
-          "timeCost": 35,
-          "effects": { "humanity": 2, "panic": 1 },
-          "addFlags": ["calledFamily", "phone"],
-          "next": "phone_call",
-          "afterChoiceText": "Marcas. Esperas. La voz de tu madre dura cuatro frases. Cuelga ella. Te das cuenta de que estás temblando."
+          "label": "Coger el teléfono",
+          "description": "La pantalla sigue encendida. Todavía puedes intentar escuchar una voz antes de salir.",
+          "visibleHint": "SEÑAL PERSONAL",
+          "timeCost": 18,
+          "effects": {
+            "humanity": 1,
+            "panic": 1,
+            "attachment": 1
+          },
+          "addFlags": [
+            "calledFamily",
+            "phone"
+          ],
+          "next": "family_call",
+          "afterChoiceText": "El primer tono pesa más que la mochila que todavía no has cogido."
         },
         {
-          "icon": "🗺️",
-          "label": "Buscar un mapa de refugios cercanos",
-          "description": "Tu móvil aún tiene cobertura. Tal vez sea la última vez.",
-          "visibleHint": "Tiempo incierto",
-          "timeCost": 40,
-          "effects": { "information": 4, "panic": 1 },
-          "addFlags": ["mapChecked", "officialShelterKnown", "alternateShelterKnown", "phone"],
-          "next": "map_search",
-          "afterChoiceText": "El mapa tarda en cargar. Cuando lo hace, descubres dos cosas que casi nadie más sabe: el refugio oficial está saturado y hay un párking subterráneo a tres calles. Lo memorizas todo antes de que el móvil muera."
+          "icon": "🎒",
+          "label": "Coger mochila",
+          "description": "No hay tiempo para pensar bien. Sí para elegir mal.",
+          "visibleHint": "Ruta de preparación",
+          "timeCost": 12,
+          "effects": {
+            "preparation": 1,
+            "observation": 1
+          },
+          "addFlags": [
+            "backpack"
+          ],
+          "next": "bag_start",
+          "afterChoiceText": "Abres el armario de golpe. La mochila cae al suelo con un ruido seco."
         }
+      ],
+      "zone": "home",
+      "location": "Salon de casa",
+      "mapPosition": "home",
+      "spatialSummary": "Sigues dentro de casa, a segundos de decidir por donde empieza tu salida.",
+      "sceneContext": "Estas en el salon. La television acaba de cortar la emision y la puerta del piso sigue cerrada a tu espalda.",
+      "knownPlaces": [
+        "home",
+        "building_stairs"
       ]
     },
-
-    "packing": {
-      "id": "packing",
-      "title": "TREINTA SEGUNDOS PARA ELEGIR",
+    "bag_start": {
+      "id": "bag_start",
+      "title": "LA MOCHILA DEL ARMARIO",
       "atmosphere": "tense",
       "icon": "🎒",
-      "text": "Mochila en el suelo. Abres armarios a manotazos. No puedes llevártelo todo. Tienes que elegir tres cosas, máximo cuatro, y cada cosa que metes son segundos que pierdes.",
+      "text": "La mochila cae abierta a tus pies. No tienes tiempo para pensar como una persona ordenada. Tienes tiempo para elegir de qué forma quieres llegar tarde.",
       "options": [
         {
-          "icon": "🔦",
-          "label": "Agua, linterna, radio de pilas",
-          "description": "Lo que cualquier protocolo recomienda. Si tienes tiempo de leerlo.",
-          "visibleHint": "Un momento largo",
+          "icon": "💧",
+          "label": "Mochila de supervivencia",
+          "description": "Agua, linterna y abrigo. Peso útil. Peso al fin y al cabo.",
+          "visibleHint": "Lenta, sólida",
           "timeCost": 30,
-          "effects": { "preparation": 4, "information": 1 },
-          "addFlags": ["water", "flashlight", "radio"],
-          "next": "hallway",
-          "afterChoiceText": "Lo metes todo en la mochila. Sales del piso pensando que has hecho lo correcto y que tal vez por eso has tardado demasiado."
+          "effects": {
+            "preparation": 3,
+            "panic": -1
+          },
+          "addFlags": [
+            "water",
+            "flashlight",
+            "warmClothes",
+            "bagHeavy"
+          ],
+          "next": "bag_interruption",
+          "afterChoiceText": "La mochila gana forma y pierde ligereza. También tú."
         },
         {
           "icon": "💊",
-          "label": "Medicinas, documentos, llaves",
-          "description": "Si sobrevives, necesitarás demostrar que existes.",
-          "visibleHint": "Un momento largo",
-          "timeCost": 28,
-          "effects": { "preparation": 3 },
-          "addFlags": ["medicine", "documents", "keys"],
-          "next": "hallway",
-          "afterChoiceText": "Documentación. Las pastillas que tomas cada día. Las llaves de casa, por costumbre. Cosas que pensarías si te fueras de viaje. No te vas de viaje."
+          "label": "Mochila médica",
+          "description": "Botiquín, medicina y vendas antes que comodidad.",
+          "visibleHint": "Lenta, humana",
+          "timeCost": 26,
+          "effects": {
+            "preparation": 1,
+            "humanity": 1
+          },
+          "addFlags": [
+            "medicine",
+            "canHelpInjured"
+          ],
+          "next": "bag_interruption",
+          "afterChoiceText": "Cierras el botiquín a la fuerza. Llevas formas de ayudar, no garantías."
         },
         {
           "icon": "🔋",
-          "label": "Móvil, cargador, agua",
-          "description": "Comunicación. Hidratación. Lo básico para una hora.",
-          "visibleHint": "Un momento",
-          "timeCost": 22,
-          "effects": { "preparation": 2, "information": 1 },
-          "addFlags": ["phone", "water"],
-          "next": "hallway",
-          "afterChoiceText": "Lo más rápido. Lo más útil a corto plazo. Algo te dice que vas a necesitar pensar a más largo plazo, pero ya."
+          "label": "Mochila rápida",
+          "description": "Llaves, batería externa y una salida que aún cabe por las puertas.",
+          "visibleHint": "Rápida, ligera",
+          "timeCost": 16,
+          "effects": {
+            "preparation": 1,
+            "information": 1
+          },
+          "addFlags": [
+            "keys",
+            "powerBank",
+            "water",
+            "bagLight"
+          ],
+          "next": "bag_interruption",
+          "afterChoiceText": "La mochila casi no pesa. Ese alivio dura menos de un segundo."
         },
         {
-          "icon": "📸",
-          "label": "Lo que pillas: linterna, llaves, foto familiar",
-          "description": "El pánico decide por ti. Algo te llevas.",
-          "visibleHint": "Rápido, pero confuso",
-          "timeCost": 15,
-          "effects": { "preparation": 1, "humanity": 2, "panic": 2 },
-          "addFlags": ["flashlight", "keys"],
-          "next": "hallway",
-          "afterChoiceText": "Te miras la mano: linterna, llaves, una foto del verano pasado. No es un plan. Es lo que ha cabido en quince segundos."
-        }
-      ]
-    },
-
-    "phone_call": {
-      "id": "phone_call",
-      "title": "TRES TONOS",
-      "atmosphere": "intimate",
-      "icon": "📞",
-      "text": "Tres tonos. Cuatro. Cinco. Tu madre lo coge al sexto. Su voz suena lejos, como si ya estuviera bajo tierra. 'Estoy bien. Tú escóndete. No me llames otra vez, gasta la batería.' Cuelga ella. Tú te quedas con el móvil pegado a la oreja durante un segundo de más.\n\nLas calles ya se oyen.",
-      "options": [
-        {
-          "icon": "🎒",
-          "label": "Coger mochila rápido y salir",
-          "description": "Algo es algo.",
-          "visibleHint": "Casi nada",
-          "timeCost": 5,
-          "effects": { "humanity": 1 },
-          "next": "packing",
-          "afterChoiceText": "Vuelves al salón. La televisión sigue repitiendo la alerta."
-        },
-        {
-          "icon": "🏃",
-          "label": "Salir corriendo, sin más",
-          "description": "Ya has perdido bastante tiempo.",
-          "visibleHint": "Casi nada",
-          "timeCost": 4,
-          "effects": { "panic": 2 },
-          "next": "hallway",
-          "afterChoiceText": "Cierras la puerta. Llaves dentro. No vas a volver a por ellas."
-        }
-      ]
-    },
-
-    "map_search": {
-      "id": "map_search",
-      "title": "EL MAPA",
-      "atmosphere": "discovery",
-      "icon": "🗺️",
-      "text": "Abres el navegador. La página oficial está caída. Cargas un mapa cualquiera y haces zoom hasta tu barrio.\n\nEl refugio oficial está a doce minutos a pie. No vas a llegar.\n\nPero hay otra cosa: un párking subterráneo a tres calles. Tres plantas bajo tierra. No es un refugio oficial. Tampoco está cerrado con llave a esta hora. Y tienes una intuición: el metro, dos manzanas más allá, también podría servir.\n\nGuardas todo en la cabeza. El móvil se queda sin batería casi al instante.",
-      "options": [
-        {
-          "icon": "🎒",
-          "label": "Coger mochila y salir con un plan",
-          "description": "Ahora sabes adónde vas. Si llegas.",
-          "visibleHint": "Casi nada",
-          "timeCost": 5,
-          "effects": { "information": 1 },
-          "next": "packing",
-          "afterChoiceText": "Vuelves al salón. Ya tienes la cabeza más clara que antes."
-        },
-        {
-          "icon": "🏃",
-          "label": "Salir ya, antes de que sea tarde",
-          "description": "Llevas el mapa en la cabeza. No necesitas más.",
-          "visibleHint": "Casi nada",
-          "timeCost": 3,
-          "effects": { "panic": 1 },
-          "next": "hallway",
-          "afterChoiceText": "Móvil al bolsillo. Llaves al bolsillo. Adelante."
-        }
-      ]
-    },
-
-    "hallway": {
-      "id": "hallway",
-      "title": "RELLANO",
-      "atmosphere": "tense",
-      "icon": "🚪",
-      "text": "Cierras la puerta de un golpe. El pasillo huele a polvo y a miedo. Las luces parpadean. Oyes carreras dos pisos más arriba.\n\nEn el felpudo del 3ºB hay una mujer mayor sentada en el suelo. Vecina de toda la vida. Se sujeta el tobillo con las dos manos. Levanta la cara cuando te ve.\n\n'Por favor. No puedo bajar sola.'",
-      "options": [
-        {
-          "icon": "🤝",
-          "label": "Ayudarla a bajar contigo",
-          "description": "Vas a poder mirarte en el espejo después.",
-          "visibleHint": "Lo que ella tarde",
-          "timeCost": 60,
-          "effects": { "humanity": 5, "preparation": -1, "trust": 2 },
-          "addFlags": ["helpedNeighbor", "neighborWithYou"],
-          "next": "street",
-          "afterChoiceText": "La coges del brazo. Le pesa el cuerpo de un modo que no esperabas. Bajáis los seis pisos al ritmo que ella puede. Cada peldaño dura una eternidad. Pero los bajáis los dos."
-        },
-        {
-          "icon": "🫥",
-          "label": "Decirle que enseguida vuelves a buscarla",
-          "description": "No vas a volver.",
-          "visibleHint": "Un instante",
-          "timeCost": 12,
-          "effects": { "humanity": -2, "guilt": 4 },
-          "addFlags": ["ignoredNeighbor"],
-          "next": "street",
-          "afterChoiceText": "Le sonríes. Le dices algo que ni tú te crees. Bajas las escaleras de dos en dos. Te dices a ti mismo que vas a volver. Sabes que no."
-        },
-        {
-          "icon": "🏃",
-          "label": "Bajar sin mirar atrás",
-          "description": "Aún oyes cómo te llama desde el rellano.",
-          "visibleHint": "Un instante",
-          "timeCost": 8,
-          "effects": { "panic": 2, "humanity": -4, "guilt": 5 },
-          "addFlags": ["ignoredNeighbor"],
-          "next": "street",
-          "afterChoiceText": "No la miras. La oyes pedirlo otra vez, más bajo. Sigues bajando. No vas a olvidar este sonido."
-        },
-        {
-          "icon": "📢",
-          "label": "Pedir ayuda a otro vecino y seguir",
-          "description": "Delegar también es una decisión.",
-          "visibleHint": "Un momento",
+          "icon": "🪪",
+          "label": "Mochila de identidad",
+          "description": "Documentos, efectivo y la foto que no sabes dejar.",
+          "visibleHint": "Media, íntima",
           "timeCost": 20,
-          "effects": { "humanity": 1, "guilt": 1 },
-          "next": "street",
-          "afterChoiceText": "Gritas hacia el rellano de arriba. Alguien contesta. Sigues bajando sin saber si alguien va a subir."
+          "effects": {
+            "humanity": 1,
+            "panic": -1
+          },
+          "addFlags": [
+            "documents",
+            "cash",
+            "familyPhoto"
+          ],
+          "next": "bag_interruption",
+          "afterChoiceText": "Guardas papeles de un mundo que quizá ya haya terminado y una foto que se niega a terminar contigo."
         }
-      ]
+      ],
+      "zone": "home",
+      "location": "Dormitorio / armario",
+      "mapPosition": "home",
+      "spatialSummary": "Sigues dentro del piso, desviandote hacia el armario antes de bajar.",
+      "sceneContext": "Estas junto al armario del dormitorio. La mochila ha caido al suelo y la casa ya suena demasiado pequena."
     },
-
-    "street": {
-      "id": "street",
-      "title": "LA CALLE",
-      "atmosphere": "chaos",
-      "icon": "🚨",
-      "text": "La calle está en mitad de un grito largo. Coches abandonados con las puertas abiertas. Gente corriendo en las dos direcciones, porque nadie sabe cuál es la buena.\n\nUn altavoz de emergencias repite el mensaje en bucle. Cada vez con menos segundos.\n\nTienes que elegir adónde vas.",
-      "options": [
-        {
-          "icon": "🏛️",
-          "label": "Refugio oficial — el que pone la alerta",
-          "description": "Lo conoce todo el mundo. Por algo lo dicen.",
-          "visibleHint": "Trayecto largo",
-          "timeCost": 90,
-          "effects": { "information": 1 },
-          "addFlags": ["wentToOfficialShelter"],
-          "next": "approach",
-          "afterChoiceText": "Corres en dirección al refugio oficial. Lo conoce todo el mundo. Por eso, exactamente, va todo el mundo allí."
-        },
-        {
-          "icon": "🚇",
-          "label": "Boca de metro más cercana",
-          "description": "Está cerca. Está bajo tierra.",
-          "visibleHint": "Trayecto medio",
-          "timeCost": 55,
-          "effects": { "panic": 1 },
-          "addFlags": ["wentToMetro"],
-          "next": "approach",
-          "afterChoiceText": "Tres calles al norte. Bajo tierra hay menos onda expansiva, eso lo sabe cualquiera. Por eso tampoco vas a ir tú solo."
-        },
-        {
-          "icon": "🅿️",
-          "label": "Párking subterráneo a tres calles",
-          "description": "Sólo si recuerdas que existía.",
-          "visibleHint": "Trayecto medio",
-          "timeCost": 70,
-          "effects": { "information": 2 },
-          "requiredFlags": ["alternateShelterKnown"],
-          "blockedText": "No conoces ningún sitio así. No buscaste el mapa.",
-          "addFlags": ["wentToBasement"],
-          "next": "approach",
-          "afterChoiceText": "Te alejas de la marea. Por las calles laterales no corre casi nadie. Tu información vale más que tu velocidad."
-        },
-        {
-          "icon": "🏚️",
-          "label": "Quedarte cerca de casa y buscar un sótano",
-          "description": "El edificio de enfrente tiene puertas dobles. Quizá.",
-          "visibleHint": "Cerca, sin garantías",
-          "timeCost": 45,
-          "effects": { "panic": 2, "preparation": -1 },
-          "next": "approach",
-          "afterChoiceText": "Cruzas a tu acera de enfrente. Las puertas dobles están abiertas. Por dentro huele a humedad. Bajas la rampa al sótano sin saber si va a haber salida."
-        }
-      ]
-    },
-
-    "approach": {
-      "id": "approach",
-      "title": "LA APROXIMACIÓN",
-      "atmosphere": "running",
-      "icon": "🏃",
-      "text": "Corres. La gente corre contigo y contigo contra. Alguien te empuja por detrás y casi te caes. Delante, un cuello de botella humano: un portal cerrado, gente intentando abrirlo a patadas, una bicicleta tirada cruzada en el suelo.",
+    "bag_interruption": {
+      "id": "bag_interruption",
+      "title": "LA INTERRUPCIÓN",
+      "atmosphere": "fracture",
+      "icon": "⚡",
+      "text": "Cuando crees que ya has decidido, algo vuelve a romper el piso: la luz amaga con irse, alguien golpea una puerta en el pasillo y el móvil vibra contra la mesa como si también quisiera salir de aquí.",
       "textVariants": [
         {
-          "if": "state.flags includes neighborWithYou",
-          "text": "Cargas con ella. Pesa menos de lo que pensabas, pero cada paso es un acuerdo entre los dos. La calle es un río de hombros.\n\nDelante de ti, la gente se atasca en un cuello de botella. Un hombre intenta abrir un portal cerrado a patadas. Una bicicleta tirada en mitad del asfalto. Tu vecina se aferra a tu codo."
+          "if": "state.flags includes bagHeavy",
+          "text": "La mochila pesa ya sobre una silla. Entonces la casa tiembla apenas. La luz baja, vuelve, baja otra vez. El móvil vibra contra la madera. Lo único que no duda eres tú: no puedes atenderlo todo."
+        },
+        {
+          "if": "state.flags includes familyPhoto",
+          "text": "La foto asoma mal doblada por un bolsillo abierto cuando la televisión cambia de tono. Un locutor improvisa una actualización sobre accesos saturados. Al mismo tiempo, el móvil vibra y en el pasillo alguien llama a una puerta con la base del puño."
+        },
+        {
+          "if": "state.flags includes powerBank",
+          "text": "El móvil vibra con más batería de la que debería. La televisión cambia a un mapa borroso y luego la imagen se ensucia. En el pasillo alguien grita un nombre que no reconoces."
         }
       ],
       "options": [
         {
-          "icon": "↪️",
-          "label": "Rodear por la calle paralela",
-          "description": "Más largo. Más limpio. Si nadie ha pensado lo mismo.",
-          "visibleHint": "Vuelta larga",
-          "timeCost": 50,
-          "effects": { "information": 1 },
-          "next": "final_choice",
-          "afterChoiceText": "Doblas la esquina. La calle paralela está casi vacía. Por un segundo piensas que has hecho lo correcto."
+          "icon": "📺",
+          "label": "Quedarte unos segundos oyendo la actualización",
+          "description": "La información rara vez llega dos veces.",
+          "visibleHint": "Gastas tiempo",
+          "timeCost": 10,
+          "effects": {
+            "information": 2
+          },
+          "addFlags": [
+            "officialShelterKnown",
+            "officialShelterSaturated"
+          ],
+          "next": "bag_last_item",
+          "afterChoiceText": "La voz anuncia accesos lentos y recomienda no seguir a la multitud. No explica cómo se hace eso."
         },
         {
-          "icon": "🚲",
-          "label": "Pasar por encima de la bici, atajar",
-          "description": "Un segundo de duda y caes.",
-          "visibleHint": "Atajo de riesgo",
-          "timeCost": 25,
-          "effects": { "panic": 2, "injury": 3 },
-          "addFlags": ["injuredLeg"],
-          "next": "final_choice",
-          "afterChoiceText": "Saltas. La pierna se enreda en el manillar. Caes y te levantas con el tobillo encendido. Sigues corriendo, pero cojeando."
-        },
-        {
-          "icon": "👥",
-          "label": "Esperar a que se abra el portal con la gente",
-          "description": "Si lo consiguen, ganas mucho. Si no, lo pierdes todo.",
-          "visibleHint": "Apuesta colectiva",
-          "timeCost": 40,
-          "effects": { "trust": 1 },
-          "next": "final_choice",
-          "afterChoiceText": "Empujas con los demás. El portal cede de golpe. Salís todos hacia delante como si os hubieran soltado. Por un momento te sientes parte de algo."
-        },
-        {
-          "icon": "💧",
-          "label": "Compartir el agua con quien no tiene",
-          "description": "Te quedas con menos. Ellos respiran.",
-          "visibleHint": "Lo que cueste compartir",
-          "timeCost": 30,
-          "effects": { "humanity": 4, "preparation": -2 },
-          "requiredFlags": ["water"],
-          "removeFlags": ["water"],
-          "blockedText": "No tienes agua que compartir.",
-          "next": "final_choice",
-          "afterChoiceText": "Sacas la botella. Tres tragos cada uno, hasta que se acaba. Una mujer mayor te mira como si te diera las gracias por adelantado por todo lo que vendrá después."
-        }
-      ]
-    },
-
-    "final_choice": {
-      "id": "final_choice",
-      "title": "ÚLTIMO TRAMO",
-      "atmosphere": "climax",
-      "icon": "⚠️",
-      "text": "Ves la entrada. La gente se acumula. Suena, debajo de todo, una segunda señal distinta de la primera. Más aguda. Más corta. No sabes qué significa.",
-      "textVariants": [
-        {
-          "if": "state.timeLeft < 60",
-          "text": "Quedan menos de un minuto. El cielo, sobre los edificios, se está poniendo de un color que no debería existir.\n\nVes la entrada. Está ahí. Y hay una segunda señal de emergencia, otro tono distinto. Más agudo. Más corto. Como una cuenta atrás dentro de la cuenta atrás."
-        },
-        {
-          "if": "state.timeLeft < 120",
-          "text": "Menos de dos minutos. El cielo, hacia el norte, vibra raro. Ves la entrada delante. Y se oye, debajo del altavoz, una segunda señal distinta. Más aguda. Más corta."
-        }
-      ],
-      "options": [
-        {
-          "icon": "💪",
-          "label": "Entrar con la masa, como puedas",
-          "description": "Empujar. Codos. Es esto o nada.",
-          "visibleHint": "Rápido y bruto",
-          "timeCost": 30,
-          "effects": { "panic": 2 },
-          "addFlags": ["heardSecondSignal"],
-          "next": "ending",
-          "afterChoiceText": "Te metes entre los cuerpos. Codos en las costillas, alguien te pisa, alguien grita. No te paras a mirar quién."
-        },
-        {
-          "icon": "🙏",
-          "label": "Ceder el sitio a alguien que llega peor que tú",
-          "description": "Hay una niña detrás. Tú aún puedes correr.",
-          "visibleHint": "Lo que tarde la decisión",
-          "timeCost": 45,
-          "effects": { "humanity": 6, "preparation": -3 },
-          "addFlags": ["heardSecondSignal"],
-          "next": "ending",
-          "afterChoiceText": "La empujas suavemente hacia delante. Ella mira hacia atrás una vez. Tú miras hacia atrás también. Hacia dónde, no sabes."
-        },
-        {
-          "icon": "📻",
-          "label": "Encender la radio para escuchar la segunda señal",
-          "description": "Diez segundos. Quizá te diga algo que nadie más sabe.",
-          "visibleHint": "Pausa corta",
-          "timeCost": 15,
-          "effects": { "information": 4 },
-          "requiredFlags": ["radio"],
-          "blockedText": "No tienes radio. Sólo oyes lo que oye todo el mundo.",
-          "addFlags": ["heardSecondSignal"],
-          "next": "ending",
-          "afterChoiceText": "Sintonizas. Estática. Y luego una voz, breve: 'Impacto desviado treinta kilómetros al norte. Cabezas convencionales, no nucleares. Refugios pueden mantener acceso.' Lo sabes antes que casi nadie."
+          "icon": "📳",
+          "label": "Mirar el móvil aunque te robe segundos",
+          "description": "A veces un mensaje llega justo antes del silencio.",
+          "visibleHint": "Personal",
+          "timeCost": 8,
+          "effects": {
+            "humanity": 1,
+            "information": 1
+          },
+          "addFlags": [
+            "familyInfo"
+          ],
+          "next": "bag_last_item",
+          "afterChoiceText": "No es ayuda exacta, pero sí una voz, una ubicación, una frase a la que agarrarte."
         },
         {
           "icon": "🚪",
-          "label": "Buscar otra entrada por detrás",
-          "description": "Si te equivocas, te quedas fuera.",
-          "visibleHint": "Rodeo arriesgado",
-          "timeCost": 60,
-          "effects": { "information": 1, "panic": 1 },
+          "label": "Ignorarlo todo y cerrar la mochila ya",
+          "description": "Ni la casa ni la gente van a decidir por ti.",
+          "visibleHint": "Seco",
+          "timeCost": 4,
+          "effects": {
+            "panic": 1
+          },
+          "next": "bag_last_item",
+          "afterChoiceText": "Subes la cremallera con más fuerza de la necesaria. Lo que quede fuera, queda fuera."
+        }
+      ],
+      "zone": "home",
+      "location": "Pasillo del piso",
+      "mapPosition": "home",
+      "spatialSummary": "Sigues dentro de casa, con el piso temblando alrededor de tu preparacion.",
+      "sceneContext": "Estas entre el dormitorio y la salida. El pasillo recoge la vibracion del movil, la television y los golpes de otras puertas."
+    },
+    "bag_last_item": {
+      "id": "bag_last_item",
+      "title": "LA ÚLTIMA COSA",
+      "atmosphere": "memory",
+      "icon": "🫳",
+      "text": "La mochila ya está cerrada. Entonces recuerdas una última cosa. Después recuerdas otra. Ése es el problema de las últimas cosas: nunca vienen solas.",
+      "options": [
+        {
+          "icon": "📻",
+          "label": "Volver por la radio vieja",
+          "description": "Si la ciudad deja de verse, aún podría dejarse oír.",
+          "visibleHint": "Volver atrás",
+          "timeCost": 12,
+          "addFlags": [
+            "radio"
+          ],
+          "next": "exit_with_bag",
+          "afterChoiceText": "La radio estaba donde siempre. Eso casi duele."
+        },
+        {
+          "icon": "💧",
+          "label": "Coger una botella grande de agua",
+          "description": "El peso también puede ser una forma de previsión.",
+          "visibleHint": "Más carga",
+          "timeCost": 10,
+          "addFlags": [
+            "water"
+          ],
+          "next": "exit_with_bag",
+          "afterChoiceText": "La botella golpea el lateral de la mochila con un sonido de viaje largo."
+        },
+        {
+          "icon": "🔋",
+          "label": "Coger pilas del cajón",
+          "description": "Algunas cosas solo sirven si siguen encendidas.",
+          "visibleHint": "Pequeño rodeo",
+          "timeCost": 8,
+          "addFlags": [
+            "batteries"
+          ],
+          "next": "exit_with_bag",
+          "afterChoiceText": "Cierras el puño sobre las pilas como si fueran tiempo sólido."
+        },
+        {
+          "icon": "🖼️",
+          "label": "Coger la foto familiar",
+          "description": "No protege del impacto. Sí de otras cosas.",
+          "visibleHint": "Íntimo",
+          "timeCost": 6,
+          "effects": {
+            "panic": -1,
+            "humanity": 1
+          },
+          "addFlags": [
+            "familyPhoto"
+          ],
+          "next": "exit_with_bag",
+          "afterChoiceText": "La despegas del marco sin mirar demasiado la imagen."
+        },
+        {
+          "icon": "➡️",
+          "label": "Cerrar la mochila y salir ya",
+          "description": "Cada objeto nuevo es una forma distinta de quedarse.",
+          "visibleHint": "Te arrancas",
+          "timeCost": 2,
+          "next": "exit_with_bag",
+          "afterChoiceText": "La mochila sigue sin parecer suficiente. Tú ya no puedes permitirte corregir eso."
+        }
+      ],
+      "zone": "home",
+      "location": "Entrada del piso",
+      "mapPosition": "home",
+      "spatialSummary": "Ya estas casi en la puerta del piso, decidiendo si aun cabe una ultima desviacion.",
+      "sceneContext": "Estas en la entrada de casa con la mochila cerrada. La puerta esta cerca, pero aun recuerdas cosas que siguen dentro."
+    },
+    "exit_with_bag": {
+      "id": "exit_with_bag",
+      "title": "SALIR CON PESO",
+      "atmosphere": "departure",
+      "icon": "🚪",
+      "text": "Te cuelgas la mochila. El cuerpo tarda un instante en aceptar el reparto del peso.",
+      "textVariants": [
+        {
+          "if": "state.flags includes bagHeavy",
+          "text": "La mochila te tira de los hombros hacia atrás. Has empacado futuro a costa de presente."
+        },
+        {
+          "if": "state.flags includes bagLight",
+          "text": "La mochila apenas roza la espalda. Vas rápido. También vas más desnudo de lo que te gustaría."
+        },
+        {
+          "if": "state.flags includes medicine",
+          "text": "Notas el botiquín moviéndose dentro. Llevas formas de ayudar a otros, no una promesa para ti."
+        },
+        {
+          "if": "state.flags includes documents",
+          "text": "Llevas papeles de un mundo administrativo que quizá esté a punto de quedarse sin oficinas."
+        }
+      ],
+      "options": [
+        {
+          "icon": "🪜",
+          "label": "Bajar por la escalera principal",
+          "description": "La ruta obvia siempre existe por una razón. No siempre es buena.",
+          "visibleHint": "ESCALERA",
+          "timeCost": 18,
+          "effects": {
+            "survival": 1
+          },
+          "next": "building_descent",
+          "afterChoiceText": "La puerta de la escalera cede con un golpe y el edificio entero suena ocupado."
+        },
+        {
+          "icon": "👁️",
+          "label": "Asomarte al pasillo y medir el movimiento",
+          "description": "Un segundo de lectura puede valer más que otro objeto mal elegido.",
+          "visibleHint": "OBSERVAR",
+          "timeCost": 8,
+          "effects": {
+            "information": 1,
+            "observation": 1
+          },
+          "next": "building_descent",
+          "afterChoiceText": "Abres apenas la puerta y miras quién baja, quién se atasca y qué lado del edificio respira peor."
+        },
+        {
+          "icon": "👥",
+          "label": "Seguir el primer flujo de vecinos que se mueva",
+          "description": "Quizá alguien haya decidido antes que tú. A veces eso también sirve.",
+          "visibleHint": "SEGUIR FLUJO",
+          "timeCost": 10,
+          "effects": {
+            "groupTrust": 1,
+            "survival": 1
+          },
+          "next": "building_descent",
+          "afterChoiceText": "Sales detrás de dos pasos rápidos y dejas que el edificio marque el ritmo por ti durante un tramo."
+        },
+        {
+          "icon": "🗝️",
+          "label": "Abrir la salida del patio interior",
+          "description": "Las llaves sirven para más cosas cuando el miedo aún no ha llegado primero.",
+          "visibleHint": "DESVÍO",
+          "timeCost": 10,
+          "effects": {
+            "information": 1,
+            "autonomy": 1,
+            "preparation": 1,
+            "observation": 1
+          },
+          "requiredFlags": [
+            "keys"
+          ],
+          "blockedText": "La puerta del patio no reconoce manos vacías.",
+          "next": "building_descent",
+          "afterChoiceText": "La llave entra a la primera. Eso te asusta casi tanto como si no hubiera entrado."
+        },
+        {
+          "icon": "🧰",
+          "label": "Pasar por el trastero común antes de bajar",
+          "description": "Todavía recuerdas qué cerradura se atascaba siempre.",
+          "visibleHint": "TRASTERO",
+          "timeCost": 14,
+          "effects": {
+            "preparation": 1,
+            "autonomy": 1
+          },
+          "requiredFlags": [
+            "keys"
+          ],
+          "blockedText": "El trastero sigue al otro lado de una costumbre cerrada.",
+          "addFlags": [
+            "multiTool"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "Sales con una multiherramienta en el bolsillo y la sensación de haber robado tiempo al edificio."
+        }
+      ],
+      "zone": "stairs",
+      "location": "Puerta del piso",
+      "mapPosition": "building_stairs",
+      "spatialSummary": "Acabas de dejar la casa y estas a punto de bajar a la escalera del edificio.",
+      "sceneContext": "Estas en la puerta del piso con la mochila colgada. Del otro lado espera la escalera y el ruido del edificio entero moviendose."
+    },
+    "map_search": {
+      "id": "map_search",
+      "title": "BUSCAR COBERTURA",
+      "atmosphere": "discovery",
+      "icon": "🗺️",
+      "text": "El móvil tarda en obedecer. Las páginas oficiales cargan a tirones. El barrio parece menos conocido cuando lo miras con una cuenta atrás encima.",
+      "options": [
+        {
+          "icon": "🏛️",
+          "label": "Abrir el mapa oficial",
+          "description": "No siempre es verdad, pero sí lo primero que mira todo el mundo.",
+          "visibleHint": "Información pública",
+          "timeCost": 16,
+          "effects": {
+            "information": 2
+          },
+          "addFlags": [
+            "foundMap",
+            "officialShelterKnown"
+          ],
+          "next": "map_conflict",
+          "afterChoiceText": "Encuentras el refugio señalado en grande y demasiados puntos azules moviéndose hacia él."
+        },
+        {
+          "icon": "🧭",
+          "label": "Buscar capturas y rutas vecinales",
+          "description": "La información buena a veces llega mal peinada.",
+          "visibleHint": "Menos fiable",
+          "timeCost": 20,
+          "effects": {
+            "information": 2,
+            "panic": 1
+          },
+          "addFlags": [
+            "foundMap",
+            "alternateRouteKnown",
+            "parkingKnown",
+            "metroKnown"
+          ],
+          "next": "map_conflict",
+          "afterChoiceText": "Aparecen flechas dibujadas sobre mapas borrosos, parkings sin rotular y una boca de metro menos concurrida."
+        },
+        {
+          "icon": "📞",
+          "label": "Llamar a alguien del barrio para confirmar",
+          "description": "La ciudad a veces vive mejor en la memoria de otro.",
+          "visibleHint": "Humano",
+          "timeCost": 14,
+          "effects": {
+            "humanity": 1,
+            "information": 1
+          },
+          "addFlags": [
+            "familyInfo",
+            "officialShelterKnown"
+          ],
+          "next": "map_conflict",
+          "afterChoiceText": "No te responde con calma, pero sí con detalles: una cola enorme, una rampa lateral, dos calles ya bloqueadas."
+        }
+      ],
+      "zone": "phone",
+      "location": "Salon con el movil en la mano",
+      "mapPosition": "phone",
+      "spatialSummary": "Sigues dentro de casa, usando el movil para convertir el barrio en una ruta posible.",
+      "sceneContext": "Estas quieto en el salon, pegado a la pantalla del movil mientras la cobertura entra y sale por segundos.",
+      "knownPlaces": [
+        "official_queue",
+        "metro_entrance",
+        "parking_entrance"
+      ]
+    },
+    "map_conflict": {
+      "id": "map_conflict",
+      "title": "DOS PLANOS DISTINTOS",
+      "atmosphere": "analysis",
+      "icon": "📡",
+      "text": "No hay un solo mapa. Hay uno que quiere ordenar el pánico y otro que intenta sobrevivirlo. Ninguno encaja del todo con la ciudad que conoces.",
+      "options": [
+        {
+          "icon": "🏛️",
+          "label": "Quedarte con el refugio oficial pese a la saturación",
+          "description": "Lo visible también es lo más defendible.",
+          "visibleHint": "Convencional",
+          "timeCost": 12,
+          "effects": {
+            "information": 1
+          },
+          "addFlags": [
+            "officialShelterKnown",
+            "officialShelterSaturated"
+          ],
+          "next": "map_choice",
+          "afterChoiceText": "Memorizas el acceso principal y una fila que parece ya demasiado larga para los minutos que quedan."
+        },
+        {
+          "icon": "📸",
+          "label": "Guardar una captura y buscar acceso secundario",
+          "description": "No necesitas un refugio. Necesitas una entrada.",
+          "visibleHint": "Más fina",
+          "timeCost": 14,
+          "effects": {
+            "information": 2
+          },
+          "addFlags": [
+            "screenshotMap",
+            "map",
+            "alternateRouteKnown",
+            "parkingKnown"
+          ],
+          "next": "map_choice",
+          "afterChoiceText": "Ampliando al máximo encuentras una rampa de servicio que en el mapa oficial ni siquiera parece una ruta."
+        },
+        {
+          "icon": "📴",
+          "label": "Cortar la búsqueda antes de quedarte sin cobertura",
+          "description": "Hay un momento en que seguir mirando también es perderse.",
+          "visibleHint": "Salir ya",
+          "timeCost": 6,
+          "effects": {
+            "panic": 1
+          },
+          "addFlags": [
+            "signalLost"
+          ],
+          "next": "map_choice",
+          "afterChoiceText": "Apagas la pantalla antes de que el móvil muera contigo mirando."
+        }
+      ],
+      "zone": "phone",
+      "location": "Salon / mapa en pantalla",
+      "mapPosition": "phone",
+      "spatialSummary": "Sigues con el movil en la mano, comparando rutas antes de abandonar el piso.",
+      "sceneContext": "Estas delante del movil, viendo dos lecturas incompatibles del mismo barrio antes de salir a la escalera.",
+      "knownPlaces": [
+        "official_queue",
+        "metro_entrance",
+        "parking_entrance"
+      ]
+    },
+    "map_choice": {
+      "id": "map_choice",
+      "title": "QUÉ RUTA TE CREES",
+      "atmosphere": "tactical",
+      "icon": "🧠",
+      "text": "Ya no buscas datos. Ahora eliges qué parte de ellos merece volverse decisión.",
+      "options": [
+        {
+          "icon": "🅿️",
+          "label": "Memorizar la ruta lateral al parking",
+          "description": "Si sales por donde nadie sale, quizá llegues donde casi nadie llega.",
+          "visibleHint": "Alternativa",
+          "timeCost": 12,
+          "effects": {
+            "information": 1
+          },
+          "addFlags": [
+            "foundMap",
+            "map",
+            "alternateRouteKnown",
+            "parkingKnown"
+          ],
+          "next": "exit_with_map",
+          "afterChoiceText": "Repites calles y giros por dentro como si estudiaras para un examen final."
+        },
+        {
+          "icon": "🚇",
+          "label": "Marcar la boca de metro menos transitada",
+          "description": "No es segura. Solo es menos obvia.",
+          "visibleHint": "Subterránea",
+          "timeCost": 10,
+          "effects": {
+            "information": 1
+          },
+          "addFlags": [
+            "foundMap",
+            "map",
+            "metroKnown"
+          ],
+          "next": "exit_with_map",
+          "afterChoiceText": "Te quedas con una entrada lateral junto a una farmacia que siempre tenía la persiana a medio bajar."
+        },
+        {
+          "icon": "➡️",
+          "label": "Salir con información parcial antes de perderlo todo",
+          "description": "No saberlo todo también puede ser una forma de llegar.",
+          "visibleHint": "Suficiente",
+          "timeCost": 5,
+          "effects": {
+            "panic": 1
+          },
+          "addFlags": [
+            "foundMap"
+          ],
+          "next": "exit_with_map",
+          "afterChoiceText": "No sales con un plano completo, pero sí con un sentido de dirección que antes no tenías."
+        }
+      ],
+      "zone": "phone",
+      "location": "Entrada del piso con la ruta memorizada",
+      "mapPosition": "phone",
+      "spatialSummary": "Aun sigues dentro, pero ya estas convirtiendo informacion parcial en una ruta real.",
+      "sceneContext": "Estas en la entrada del piso con el movil aun encendido. Ya no buscas mas datos: decides cuales merecen guiarte fuera.",
+      "knownPlaces": [
+        "official_queue",
+        "metro_entrance",
+        "parking_entrance"
+      ]
+    },
+    "exit_with_map": {
+      "id": "exit_with_map",
+      "title": "SALIR CON TRAZADO",
+      "atmosphere": "departure",
+      "icon": "🧾",
+      "text": "Cuando te cuelgas el móvil del miedo al bolsillo, ya no piensas en refugios. Piensas en accesos, cuellos de botella, calles estrechas y sitios por donde la masa no cabe.",
+      "options": [
+        {
+          "icon": "🧍",
+          "label": "Salir ya con la captura en la cabeza",
+          "description": "La ruta vale mientras siga viva en ti.",
+          "visibleHint": "Rápido",
+          "timeCost": 10,
+          "addFlags": [
+            "foundMap",
+            "map"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "Apagas la pantalla. El plano se queda un momento detrás de tus párpados."
+        },
+        {
+          "icon": "📍",
+          "label": "Reenviar ubicación y captura antes de bajar",
+          "description": "Si desapareces, al menos que alguien sepa por dónde lo intentaste.",
+          "visibleHint": "Último mensaje",
+          "timeCost": 8,
+          "effects": {
+            "humanity": 1,
+            "information": 1
+          },
+          "addFlags": [
+            "sentLocation",
+            "foundMap",
+            "map"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "El mensaje sale por milagro o por costumbre. Ya no sabrás cuál."
+        },
+        {
+          "icon": "📺",
+          "label": "Escuchar la alerta extendida diez segundos más",
+          "description": "Las órdenes oficiales siempre llegan tarde, pero a veces dicen algo nuevo.",
+          "visibleHint": "Afinar",
+          "timeCost": 12,
+          "effects": {
+            "information": 1
+          },
+          "addFlags": [
+            "officialShelterKnown",
+            "officialShelterSaturated"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "El locutor improvisa sobre accesos lentos y entradas secundarias no verificadas. Eso basta."
+        }
+      ],
+      "zone": "stairs",
+      "location": "Puerta del piso con la ruta en mente",
+      "mapPosition": "building_stairs",
+      "spatialSummary": "Dejas la casa con un plano mental y te diriges a la escalera del edificio.",
+      "sceneContext": "Estas en la salida del piso, guardando el movil antes de bajar a la escalera principal del edificio.",
+      "knownPlaces": [
+        "official_queue",
+        "metro_entrance",
+        "parking_entrance"
+      ]
+    },
+    "family_call": {
+      "id": "family_call",
+      "title": "TRES TONOS",
+      "atmosphere": "intimate",
+      "icon": "📞",
+      "text": "Tu reacción te ha llevado al teléfono. Pero no hay tiempo para todos. La alerta sigue sonando de fondo y tu dedo se queda quieto sobre la pantalla. Elegir un número también es perder otro.",
+      "options": [
+        {
+          "icon": "👩",
+          "label": "Llamar a tu madre",
+          "description": "Necesitas escuchar una voz conocida antes de que todo empiece a sonar extraño.",
+          "visibleHint": "CONTACTO FAMILIAR",
+          "timeCost": 17,
+          "effects": {
+            "humanity": 2,
+            "information": 1,
+            "panic": -1,
+            "attachment": 2
+          },
+          "addFlags": [
+            "calledFamily",
+            "called_mother",
+            "avoid_main_avenue_hint",
+            "family_contact",
+            "emotional_anchor"
+          ],
+          "next": "mother_aftermath",
+          "afterChoiceText": "Tu madre contesta al segundo tono. No pregunta si estás bien, pregunta dónde estás. Al fondo se oye una radio vieja repitiendo la alerta con retraso. Te dice que no vayas por la avenida principal. Luego la llamada se corta."
+        },
+        {
+          "icon": "🎙️",
+          "label": "Mandar un audio al grupo de WhatsApp",
+          "description": "Hablas rápido, sin esperar respuesta. Si alguien sabe algo, que lo diga ya.",
+          "visibleHint": "AVISO EN CADENA",
+          "timeCost": 14,
+          "effects": {
+            "information": 2,
+            "panic": 1,
+            "groupTrust": 2
+          },
+          "addFlags": [
+            "warned_group",
+            "metro_full_hint",
+            "social_noise",
+            "whatsapp_sent"
+          ],
+          "next": "whatsapp_aftermath",
+          "afterChoiceText": "El audio se envía. Durante tres segundos no pasa nada. Luego el grupo explota: audios cortados, ubicaciones, alguien escribiendo en mayúsculas. Entre el ruido, una frase se repite dos veces: \"El metro está lleno\"."
+        },
+        {
+          "icon": "📟",
+          "label": "Llamar al 112",
+          "description": "Marcas emergencias esperando que todavía quede alguien al otro lado.",
+          "visibleHint": "LÍNEA OFICIAL",
+          "timeCost": 13,
+          "effects": {
+            "information": 1,
+            "panic": 0,
+            "systemTrust": 2
+          },
+          "addFlags": [
+            "calledFamily",
+            "called_112",
+            "official_shelter_hint",
+            "system_saturated",
+            "emergency_line_busy"
+          ],
+          "next": "emergency_aftermath",
+          "afterChoiceText": "Una voz automática responde antes que una persona: \"Todas las líneas están ocupadas. Diríjase al refugio designado más cercano\". Luego la llamada se corta. No sabes si eso ayuda o solo confirma que todos están haciendo lo mismo."
+        }
+      ],
+      "zone": "phone",
+      "location": "Salon / telefono",
+      "mapPosition": "phone",
+      "spatialSummary": "Sigues dentro de casa, usando el telefono como ultimo puente antes de salir.",
+      "sceneContext": "Estas quieto frente a la pantalla del movil mientras la alerta sigue sonando detras de ti.",
+      "knownHints": [
+        "family_contact",
+        "official_shelter_hint",
+        "metro_full_hint"
+      ]
+    },
+    "mother_aftermath": {
+      "id": "mother_aftermath",
+      "title": "DESPUÉS DEL TONO",
+      "atmosphere": "aftershock",
+      "icon": "📨",
+      "text": "La llamada se corta y el silencio vuelve más pesado. Te ha dejado una frase, una advertencia y esa sensación absurda de que, por un momento, el mundo seguía teniendo una casa.",
+      "options": [
+        {
+          "icon": "➡️",
+          "label": "Guardar el teléfono y salir ya",
+          "description": "Ya has escuchado lo que necesitabas. Quedarte mirando la pantalla no va a traerla de vuelta.",
+          "visibleHint": "SALIR YA",
+          "timeCost": 6,
+          "effects": {
+            "panic": 1,
+            "autonomy": 1
+          },
+          "next": "building_descent",
+          "afterChoiceText": "Bloqueas la pantalla y por un segundo ves tu propia cara reflejada. No ayuda. Pero moverte sí puede."
+        },
+        {
+          "icon": "📍",
+          "label": "Mandar tu ubicación antes de bajar",
+          "description": "Si alguien vuelve a mirar este teléfono, al menos sabrá desde dónde intentaste salir.",
+          "visibleHint": "UBICACIÓN",
+          "timeCost": 9,
+          "effects": {
+            "humanity": 1,
+            "information": 1,
+            "attachment": 1
+          },
+          "addFlags": [
+            "sentLocation"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "El icono de enviado tarda demasiado en aparecer. Cuando por fin lo hace, ya estás mirando la puerta."
+        },
+        {
+          "icon": "🎒",
+          "label": "Aprovechar el tirón y coger algo antes de salir",
+          "description": "La llamada te ha recordado quién eras. También qué podrías necesitar.",
+          "visibleHint": "ÚLTIMO DESVÍO",
+          "timeCost": 14,
+          "effects": {
+            "preparation": 1,
+            "observation": 1
+          },
+          "addFlags": [
+            "backpack"
+          ],
+          "next": "exit_with_family",
+          "afterChoiceText": "No preparas una mochila entera. Solo rescatas una costumbre útil del borde del pánico."
+        }
+      ],
+      "zone": "phone",
+      "location": "Entrada del piso con el movil aun encendido",
+      "mapPosition": "phone",
+      "spatialSummary": "Aun sigues dentro del piso, con una advertencia familiar empujandote hacia la salida.",
+      "sceneContext": "Estas en la entrada de casa con la llamada recien cortada y la frase de tu madre aun golpeandote por dentro.",
+      "knownHints": [
+        "avoid_main_avenue_hint",
+        "family_contact"
+      ]
+    },
+    "whatsapp_aftermath": {
+      "id": "whatsapp_aftermath",
+      "title": "DOBLE CHECK",
+      "atmosphere": "aftershock",
+      "icon": "📨",
+      "text": "El audio queda enviado. Dos checks grises aparecen bajo tu mensaje y, durante un segundo, parece que nada va a pasar. Luego el grupo despierta de golpe: audios pisándose, ubicaciones incompletas, alguien escribiendo en mayúsculas. No tienes una respuesta. Tienes demasiadas.",
+      "options": [
+        {
+          "icon": "➡️",
+          "label": "Guardar el móvil y salir ya",
+          "description": "Ya has soltado el aviso. Si esperas respuestas, te quedas dentro de ellas.",
+          "visibleHint": "SALIR YA",
+          "timeCost": 6,
+          "effects": {
+            "panic": 1,
+            "autonomy": 1
+          },
+          "next": "building_descent",
+          "afterChoiceText": "Apagas la pantalla antes de que entren más mensajes. El ruido sigue, pero ya no cabe entero en tu mano."
+        },
+        {
+          "icon": "📍",
+          "label": "Mandar tu ubicación al grupo",
+          "description": "No sabes si alguien podrá ayudarte, pero al menos sabrán desde dónde empezaste.",
+          "visibleHint": "UBICACIÓN",
+          "timeCost": 9,
+          "effects": {
+            "humanity": 1,
+            "information": 1,
+            "groupTrust": 1
+          },
+          "addFlags": [
+            "sentLocation"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "Compartes tu ubicación y el mapa tarda un segundo de más en cargar. Cuando lo envías, ya estás mirando la salida."
+        },
+        {
+          "icon": "📱",
+          "label": "Leer tres mensajes más antes de moverte",
+          "description": "Quizá entre el ruido haya una pista. Quizá solo pierdas segundos viendo pánico escrito.",
+          "visibleHint": "MÁS RUIDO",
+          "timeCost": 11,
+          "effects": {
+            "information": 1,
+            "panic": 1,
+            "groupTrust": 1,
+            "observation": 1
+          },
+          "addFlags": [
+            "read_more_whatsapp",
+            "social_noise"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "Lees mensajes cruzados, una ubicación borrosa y otra persona jurando que el metro ya no cabe. No sales con una verdad. Sales con más ruido."
+        }
+      ],
+      "zone": "phone",
+      "location": "Entrada del piso con el grupo despierto",
+      "mapPosition": "phone",
+      "spatialSummary": "Sigues dentro, filtrando ruido social antes de bajar al edificio.",
+      "sceneContext": "Estas en la entrada del piso mirando una pantalla llena de audios, ubicaciones y panico escrito.",
+      "knownHints": [
+        "metro_full_hint",
+        "whatsapp_sent",
+        "social_noise"
+      ]
+    },
+    "emergency_aftermath": {
+      "id": "emergency_aftermath",
+      "title": "LÍNEA SATURADA",
+      "atmosphere": "aftershock",
+      "icon": "📨",
+      "text": "La llamada termina sin despedida. La voz automática sigue repitiéndose dentro de tu cabeza: refugio designado más cercano. No sabes si has recibido una instrucción o si acabas de escuchar el colapso hablando con educación.",
+      "options": [
+        {
+          "icon": "➡️",
+          "label": "Guardar el móvil y seguir la instrucción",
+          "description": "Si el sistema todavía sabe decir algo, quizá convenga escucharlo.",
+          "visibleHint": "SEGUIR ORDEN",
+          "timeCost": 6,
+          "effects": {
+            "information": 1,
+            "systemTrust": 1
+          },
+          "addFlags": [
+            "followed_official_instruction"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "Guardas el móvil con la orden aún sonando por dentro. No la obedeces del todo. Pero tampoco la ignoras."
+        },
+        {
+          "icon": "🗺️",
+          "label": "Buscar el refugio oficial en el mapa",
+          "description": "La frase era fría, pero tal vez baste para encontrar una dirección.",
+          "visibleHint": "LOCALIZAR",
+          "timeCost": 12,
+          "effects": {
+            "information": 2,
+            "observation": 1,
+            "systemTrust": 1
+          },
+          "addFlags": [
+            "checked_official_shelter_map",
+            "officialShelterKnown"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "Buscas el refugio oficial deprisa, sin confiar del todo en lo que encuentras. Aun así, ya no sales completamente a ciegas."
+        },
+        {
+          "icon": "🧭",
+          "label": "Ignorar la llamada y decidir por tu cuenta",
+          "description": "Una voz automática no sabe dónde estás, ni cuánta gente va hacia el mismo sitio.",
+          "visibleHint": "RUTA PROPIA",
+          "timeCost": 7,
+          "effects": {
+            "panic": 1,
+            "autonomy": 2
+          },
+          "addFlags": [
+            "ignored_112_instruction"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "Apartas el teléfono como si también apartaras la orden. Lo oficial sigue ahí. Tú ya no."
+        }
+      ],
+      "zone": "phone",
+      "location": "Entrada del piso tras la llamada oficial",
+      "mapPosition": "phone",
+      "spatialSummary": "Aun sigues dentro del piso, saliendo con una orden fria y poco margen para confiar en ella.",
+      "sceneContext": "Estas en la entrada de casa con la voz automatica del 112 resonando todavia en la cabeza.",
+      "knownHints": [
+        "official_shelter_hint",
+        "system_saturated"
+      ]
+    },
+    "exit_with_family": {
+      "id": "exit_with_family",
+      "title": "UN ÚLTIMO CAJÓN",
+      "atmosphere": "departure",
+      "icon": "🚶",
+      "text": "Vuelves sobre tus pasos solo unos segundos. La casa ya no parece una casa, sino un almacén de cosas que quizá importen demasiado tarde. No puedes llevártelo todo.",
+      "options": [
+        {
+          "icon": "🪪",
+          "label": "Coger documentos y una foto",
+          "description": "No detienen el impacto, pero recuerdan quién eras antes de correr.",
+          "visibleHint": "IDENTIDAD",
+          "timeCost": 16,
+          "effects": {
+            "humanity": 1
+          },
+          "addFlags": [
+            "documents",
+            "familyPhoto",
+            "has_documents",
+            "has_photo",
+            "identity_anchor"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "Cierras el cajón sin terminar de abrirlo. No necesitas más recuerdos; necesitas uno bueno."
+        },
+        {
+          "icon": "🔋",
+          "label": "Coger cargador y batería externa",
+          "description": "Si el móvil sigue siendo tu última señal, necesitas alimentarla.",
+          "visibleHint": "CONEXIÓN",
+          "timeCost": 12,
+          "effects": {
+            "information": 1,
+            "preparation": 1
+          },
+          "addFlags": [
+            "powerBank",
+            "has_charger",
+            "has_powerbank",
+            "phone_power"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "El cable se enreda una vez. Eso basta para hacerte perder la paciencia y ganarte energía."
+        },
+        {
+          "icon": "➡️",
+          "label": "No coger nada más",
+          "description": "Cada segundo dentro empieza a parecer una trampa.",
+          "visibleHint": "SALIR YA",
+          "timeCost": 6,
+          "effects": {
+            "panic": 0
+          },
+          "addFlags": [
+            "left_without_extra"
+          ],
+          "next": "building_descent",
+          "afterChoiceText": "Bajas antes de pensar si debiste coger algo más. Esa pregunta ya te perseguirá sola."
+        }
+      ],
+      "zone": "home",
+      "location": "Dormitorio / ultimo cajon",
+      "mapPosition": "home",
+      "spatialSummary": "Vuelves un instante al interior del piso antes de bajar a la escalera.",
+      "sceneContext": "Estas de nuevo dentro de casa, frente a un cajon abierto y con segundos contados para elegir una sola cosa mas."
+    },
+    "rush_exit": {
+      "id": "rush_exit",
+      "title": "YA EN EL RELLANO",
+      "atmosphere": "running",
+      "icon": "🏃",
+      "text": "Has llegado al pasillo de la escalera antes de tener un plan. Eso también es una forma de llegar temprano.",
+      "options": [
+        {
+          "icon": "🪜",
+          "label": "Bajar escaleras sin mirar",
+          "description": "La velocidad sirve mientras no tropiece contigo.",
+          "visibleHint": "Impulso",
+          "timeCost": 8,
+          "effects": {
+            "panic": 2
+          },
+          "next": "building_event_fast",
+          "afterChoiceText": "Tus pies pisan antes de que la cabeza decida dónde."
+        },
+        {
+          "icon": "⬇️",
+          "label": "Pulsar el ascensor porque aún está aquí",
+          "description": "A veces el error más peligroso es el que parece ahorrar segundos.",
+          "visibleHint": "Tentación",
+          "timeCost": 6,
+          "effects": {
+            "panic": 1
+          },
+          "next": "building_event_fast",
+          "afterChoiceText": "La puerta tarda medio segundo de más en abrirse. Medio segundo basta para empezar a arrepentirte."
+        },
+        {
+          "icon": "👥",
+          "label": "Seguir al vecino del cuarto que ya está corriendo",
+          "description": "No sabes si él sabe algo. Sabes que se mueve.",
+          "visibleHint": "Imitación",
+          "timeCost": 7,
+          "effects": {
+            "humanity": 1
+          },
+          "addFlags": [
+            "crowdGuided"
+          ],
+          "next": "building_event_fast",
+          "afterChoiceText": "Le sigues más por miedo a quedarte quieto que por confianza real."
+        },
+        {
+          "icon": "🗝️",
+          "label": "Frenar al recordar las llaves",
+          "description": "No te preparas de verdad, pero corriges un desastre obvio.",
+          "visibleHint": "Rectificar",
+          "timeCost": 12,
+          "effects": {
+            "preparation": 1
+          },
+          "addFlags": [
+            "keys"
+          ],
+          "next": "building_event_fast",
+          "afterChoiceText": "Vuelves un paso atrás, arrancas las llaves del cuenco y te odias por el alivio que eso te da."
+        }
+      ],
+      "zone": "stairs",
+      "location": "Pasillo del edificio",
+      "mapPosition": "building_stairs",
+      "spatialSummary": "Has salido del piso tan rapido que ya estas en el pasillo sin un plan completo.",
+      "sceneContext": "Estas en el pasillo del edificio, junto a la escalera. El ascensor sigue encendido y los vecinos ya bajan sin mirar atras."
+    },
+    "building_event_fast": {
+      "id": "building_event_fast",
+      "title": "TODO OCURRE DEMASIADO CERCA",
+      "atmosphere": "chaos",
+      "icon": "🚨",
+      "text": "En una ruta rápida no hay transición entre el piso y el desastre. Solo impacto adelantado.",
+      "textVariants": [
+        {
+          "if": "state.flags includes stairwell_dark",
+          "text": "La luz del hueco de escalera se apaga entera a mitad de tramo. Ya vas demasiado rápido para fingir que eso no importa."
+        },
+        {
+          "if": "state.flags includes neighbor_trapped",
+          "text": "En el tercer tramo de escalera una vecina ha quedado sentada contra la pared, con el pie torcido y la respiración rota. Has llegado demasiado deprisa para no verla."
+        },
+        {
+          "if": "state.flags includes elevator_stuck",
+          "text": "El ascensor se queda entre pisos con un golpe seco. Alguien dentro empieza a golpear la puerta desde el otro lado."
+        },
+        {
+          "if": "state.flags includes front_door_crowded",
+          "text": "La salida del portal ya es un nudo de hombros y llaves mal metidas. Llegaste pronto solo para compartir el atasco."
+        }
+      ],
+      "options": [
+        {
+          "icon": "⚠️",
+          "label": "Saltar los últimos peldaños aunque te juegues el tobillo",
+          "description": "Tu cuerpo protesta más tarde que la cuenta atrás.",
+          "visibleHint": "A cuchillo",
+          "timeCost": 10,
+          "effects": {
+            "panic": 1,
+            "injury": 2
+          },
+          "addFlags": [
+            "injured"
+          ],
+          "next": "street_without_preparation",
+          "afterChoiceText": "Aterrizas mal y sigues igual. El dolor se queda atrás solo un segundo."
+        },
+        {
+          "icon": "🚪",
+          "label": "Meterte por la puerta que use la mayoría",
+          "description": "La masa rara vez acierta, pero siempre se abre paso.",
+          "visibleHint": "Bruto",
+          "timeCost": 8,
+          "next": "street_without_preparation",
+          "afterChoiceText": "Empujas donde ya empuja todo el mundo. No es elegante. Funciona."
+        },
+        {
+          "icon": "↩️",
+          "label": "Volver un piso arriba a por algo de luz o agua",
+          "description": "Rectificar tarde también es rectificar.",
+          "visibleHint": "Corregir",
+          "timeCost": 18,
+          "effects": {
+            "preparation": 1
+          },
+          "addFlags": [
+            "flashlight"
+          ],
+          "next": "street_without_preparation",
+          "afterChoiceText": "Regresas solo lo justo para no seguir completamente vacío."
+        }
+      ],
+      "zone": "stairs",
+      "location": "Escalera principal",
+      "mapPosition": "building_stairs",
+      "spatialSummary": "Estas bajando a toda velocidad por el edificio, con el caos demasiado cerca para procesarlo bien.",
+      "sceneContext": "Estas en la escalera principal del edificio. Cada tramo trae una persona, un golpe o una puerta que empeora la bajada."
+    },
+    "street_without_preparation": {
+      "id": "street_without_preparation",
+      "title": "PRIMERO EN LA CALLE",
+      "atmosphere": "open",
+      "icon": "🌆",
+      "text": "Estas saliendo casi sin preparar nada. El portal queda a tu espalda y la calle se abre delante como una ventaja breve y mal explicada.",
+      "options": [
+        {
+          "icon": "🏛️",
+          "label": "Aprovechar la ventaja y tirar al refugio oficial",
+          "description": "Lo conoces por la señal. Con eso tiene que bastar.",
+          "visibleHint": "Recto",
+          "timeCost": 20,
+          "effects": {
+            "information": 1
+          },
+          "addFlags": [
+            "officialShelterKnown"
+          ],
+          "next": "street_crossroads",
+          "afterChoiceText": "Empiezas a correr hacia donde corre menos gente que dentro de un minuto."
+        },
+        {
+          "icon": "🚇",
+          "label": "Esconderte en la primera boca de metro que veas",
+          "description": "No sabes si es la buena. Sabes que baja.",
+          "visibleHint": "Subterránea",
+          "timeCost": 16,
+          "effects": {
+            "panic": 1
+          },
+          "addFlags": [
+            "metroKnown"
+          ],
+          "next": "street_crossroads",
+          "afterChoiceText": "Te quedas con una referencia simple: hierro, escaleras, profundidad."
+        },
+        {
+          "icon": "📣",
+          "label": "Seguir una sirena lateral aunque no sepas adónde lleva",
+          "description": "A veces decides confiando en la dirección del ruido.",
+          "visibleHint": "Improvisar",
+          "timeCost": 18,
+          "effects": {
+            "information": 1
+          },
+          "addFlags": [
+            "alternateRouteKnown"
+          ],
+          "next": "street_crossroads",
+          "afterChoiceText": "La sirena no te da certezas, pero sí una calle distinta de la de todos."
+        }
+      ],
+      "zone": "street",
+      "location": "Salida del edificio",
+      "mapPosition": "building_portal",
+      "spatialSummary": "Ya has alcanzado la calle, antes de reunir contexto o recursos suficientes.",
+      "sceneContext": "Estas junto al portal, tocando la calle casi sin preparacion y con mas velocidad que lectura del entorno.",
+      "knownPlaces": [
+        "street_main",
+        "official_queue",
+        "metro_entrance",
+        "parking_entrance"
+      ]
+    },
+    "building_descent": {
+      "id": "building_descent",
+      "title": "BAJAR NO ES SOLO BAJAR",
+      "atmosphere": "tense",
+      "icon": "🪜",
+      "text": "El edificio ya no parece un hogar. Parece una maquina estrecha que decide quien baja rapido, quien se queda atascado y quien todavia puede pensar antes de tocar la calle.",
+      "textVariants": [
+        {
+          "if": "state.flags includes stairwell_dark",
+          "text": "La escalera baja a una oscuridad que no puedes medir. Los peldaños siguen ahí; la seguridad ya no."
+        },
+        {
+          "if": "state.flags includes neighbor_trapped",
+          "text": "En el tercer tramo de escalera una vecina de toda la vida está sentada contra la pared sujetándose el tobillo con las dos manos. Levanta la cara cuando te oye."
+        },
+        {
+          "if": "state.flags includes elevator_stuck",
+          "text": "El ascensor se ha quedado entre pisos y alguien golpea la puerta desde dentro con una desesperación perfectamente regular."
+        },
+        {
+          "if": "state.flags includes front_door_crowded",
+          "text": "El portal ya es un tapón. Las puertas abren y cierran sin dejar pasar casi a nadie."
+        }
+      ],
+      "options": [
+        {
+          "icon": "🏃",
+          "label": "Bajar con el resto sin mirar demasiado",
+          "description": "La corriente humana te arrastra hacia abajo. No es elegante, pero se mueve.",
+          "visibleHint": "SEGUIR FLUJO",
+          "timeCost": 14,
+          "effects": {
+            "panic": 1,
+            "humanity": -1
+          },
+          "addFlags": [
+            "ignoredNeighbor"
+          ],
+          "next": "street_crossroads",
+          "afterChoiceText": "Te dejas arrastrar por el edificio como si ya fueras parte de la evacuación y no una persona dentro de ella."
+        },
+        {
+          "icon": "👁️",
+          "label": "Esperar diez segundos y observar",
+          "description": "A veces perder un poco de tiempo evita perderse entero.",
+          "visibleHint": "OBSERVAR",
+          "timeCost": 10,
+          "effects": {
+            "information": 1
+          },
+          "next": "street_crossroads",
+          "afterChoiceText": "Te apartas lo justo para mirar cómo se mueve la gente, qué puerta se atasca y qué escalera sigue respirando."
+        },
+        {
+          "icon": "🚪",
+          "label": "Abrirte paso hacia el portal principal",
+          "description": "Si todos van al mismo sitio, quizá el problema no sea la salida sino la multitud.",
+          "visibleHint": "EMPUJAR",
+          "timeCost": 12,
+          "effects": {
+            "panic": 1
+          },
+          "next": "street_crossroads",
+          "afterChoiceText": "Empujas hombros, pides paso y bajas sin pedir perdón a nadie en particular."
+        },
+        {
+          "icon": "🔦",
+          "label": "Encender la linterna y tomar la escalera de servicio",
+          "description": "La oscuridad deja de ser una pared cuando cabe en la mano.",
+          "visibleHint": "Más limpio",
+          "timeCost": 12,
+          "effects": {
+            "preparation": 1,
+            "observation": 1,
+            "panic": -1
+          },
+          "requiredFlags": [
+            "flashlight"
+          ],
+          "blockedText": "La escalera de servicio cae a una oscuridad demasiado espesa para bajar a ciegas.",
+          "next": "street_crossroads",
+          "afterChoiceText": "La luz corta el hueco de escalera en franjas. Por primera vez en un minuto, ves por dónde pisas."
+        },
+        {
+          "icon": "🩹",
+          "label": "Pararte con la vecina y vendarle el tobillo",
+          "description": "Pierdes ritmo. Ganas a otra persona.",
+          "visibleHint": "Humano",
+          "timeCost": 28,
+          "effects": {
+            "humanity": 3,
+            "preparation": 1,
+            "attachment": 1
+          },
+          "requiredFlags": [
+            "medicine"
+          ],
+          "blockedText": "Podrías levantarla, pero el tobillo seguiría temblando dentro de un dolor sin sujeción.",
+          "addFlags": [
+            "helpedNeighbor"
+          ],
+          "next": "street_crossroads",
+          "afterChoiceText": "No la curas. La vuelves movible. A veces eso basta para parecer un milagro."
+        },
+        {
+          "icon": "🗝️",
+          "label": "Abrir el acceso del patio y salir por detrás",
+          "description": "La ruta corta no siempre es la ruta ancha.",
+          "visibleHint": "Menos gente",
+          "timeCost": 10,
+          "effects": {
+            "information": 1
+          },
+          "requiredFlags": [
+            "keys"
+          ],
+          "blockedText": "Sabes que hay una puerta trasera, pero no sabes si se abre desde este lado.",
+          "addFlags": [
+            "secondaryDoorKnown"
+          ],
+          "next": "street_crossroads",
+          "afterChoiceText": "Cruzas por un patio interior lleno de bicis quietas y macetas volcadas. Sale menos gente por aquí porque casi nadie lo recuerda."
+        }
+      ],
+      "zone": "stairs",
+      "location": "Escalera del edificio",
+      "mapPosition": "building_stairs",
+      "spatialSummary": "Sigues dentro del edificio, bajando hacia el portal entre gente, puertas y cuellos de botella.",
+      "sceneContext": "Estas en la escalera principal. Las puertas de los pisos se abren a golpes y la bajada ya funciona como un filtro.",
+      "knownPlaces": [
+        "building_stairs",
+        "building_portal"
+      ]
+    },
+    "street_crossroads": {
+      "id": "street_crossroads",
+      "title": "LA CALLE YA HA ELEGIDO MAL",
+      "atmosphere": "chaos",
+      "icon": "🚦",
+      "text": "Coches cruzados, puertas abiertas, gente corriendo en direcciones incompatibles. Tu madre te dijo que evitaras la avenida principal. No sabes si era miedo o informacion. Ahora tienes que decidir si eso cambia tu ruta.",
+      "textVariants": [
+        {
+          "if": "state.flags includes avoid_main_avenue_hint",
+          "text": "Coches cruzados, puertas abiertas, gente corriendo en direcciones incompatibles. Tu madre te dijo que evitaras la avenida principal. No sabes si era miedo o información. Ahora tienes que decidir cuánto confiar en eso."
+        },
+        {
+          "if": "state.flags includes military_blockade",
+          "text": "Un vehículo militar atraviesa media calzada y obliga a la multitud a partirse en dos. Alguien enseña papeles. Alguien grita que ya no sirven."
+        },
+        {
+          "if": "state.flags includes traffic_collapse",
+          "text": "Los coches están parados con las puertas abiertas, como si sus dueños se hubieran evaporado de pie junto al volante. Las rutas anchas ya no son rutas."
+        },
+        {
+          "if": "state.flags includes crowd_to_metro",
+          "text": "Una corriente humana baja hacia el metro como si la ciudad hubiera encontrado un desagüe. No sabes si eso es buena señal o exactamente la contraria."
+        },
+        {
+          "if": "state.flags includes siren_update",
+          "text": "Una sirena distinta corta el aire. Luego llega una actualización rota por altavoz: 'entradas secundarias... evitar superficie abierta...'. No oyes el resto."
+        }
+      ],
+      "options": [
+        {
+          "icon": "🏛️",
+          "label": "Ir al refugio oficial",
+          "description": "Es la opción obvia. Y por eso mismo, la más compartida.",
+          "visibleHint": "OFICIAL",
+          "timeCost": 42,
+          "effects": {
+            "systemTrust": 1,
+            "groupTrust": 1
+          },
+          "addFlags": [
+            "routeOfficial"
+          ],
+          "next": "official_route",
+          "afterChoiceText": "Tomas la avenida que todos reconocen incluso cuando nadie parece quererla."
+        },
+        {
+          "icon": "🚇",
+          "label": "Bajar al metro",
+          "description": "Está cerca. Bajo tierra. Y eso basta para que demasiada gente piense lo mismo.",
+          "visibleHint": "SUBTERRÁNEO",
+          "timeCost": 30,
+          "effects": {
+            "survival": 1,
+            "groupTrust": 1
+          },
+          "addFlags": [
+            "routeMetro"
+          ],
+          "next": "metro_route",
+          "afterChoiceText": "La boca del metro parece una herida abierta en la acera. Corres hacia ella."
+        },
+        {
+          "icon": "🅿️",
+          "label": "Buscar la ruta alternativa al parking",
+          "description": "Recuerdas una entrada lateral que no aparece en las señales.",
+          "visibleHint": "DESVÍO",
+          "timeCost": 28,
+          "requiredFlags": [
+            "alternateRouteKnown"
+          ],
+          "blockedText": "Sin una referencia clara, el parking sigue siendo solo una idea.",
+          "effects": {
+            "information": 1,
+            "autonomy": 1
+          },
+          "addFlags": [
+            "routeAlternate"
+          ],
+          "next": "parking_route",
+          "afterChoiceText": "Te apartas de la marea y esa separación ya parece una decisión adulta."
+        },
+        {
+          "icon": "🏚️",
+          "label": "Improvisar refugio cercano",
+          "description": "No buscas seguridad perfecta. Buscas llegar antes del cielo.",
+          "visibleHint": "CERCA",
+          "timeCost": 22,
+          "effects": {
+            "autonomy": 1,
+            "survival": 1
+          },
+          "addFlags": [
+            "routeImprovised"
+          ],
+          "next": "improvised_route",
+          "afterChoiceText": "Dejas de perseguir la promesa perfecta y te concentras en encontrar profundidad, hormigón y una puerta."
+        }
+      ],
+      "zone": "street",
+      "location": "Calle frente al edificio",
+      "mapPosition": "street_main",
+      "spatialSummary": "Ya estas fuera del edificio y tienes que convertir el caos de la calle en una ruta propia.",
+      "sceneContext": "Estas en la calle, frente al edificio. Ves coches cruzados, gente corriendo y varias profundidades posibles antes del impacto.",
+      "knownPlaces": [
+        "street_main",
+        "official_queue",
+        "metro_entrance",
+        "parking_entrance",
+        "improvised_columns"
+      ],
+      "knownHints": [
+        "avoid_main_avenue_hint",
+        "metro_full_hint",
+        "official_shelter_hint"
+      ]
+    },
+    "official_route": {
+      "id": "official_route",
+      "title": "FILA DE ACERO",
+      "atmosphere": "climax",
+      "icon": "🏛️",
+      "text": "Llegas a la entrada del refugio oficial y descubres que no es una puerta, sino una pelea ordenada. Vallas, voces, empujones y una fila que se mueve como si pensara por sí sola.",
+      "textVariants": [
+        {
+          "if": "state.flags includes official_shelter_hint && state.flags includes system_saturated",
+          "text": "El 112 dijo lo mismo a todo el mundo. Eso no hace que el refugio sea seguro. Solo lo hace obvio. Delante de ti, la fila parece la consecuencia natural de una orden repetida miles de veces."
+        },
+        {
+          "if": "state.flags includes military_blockade",
+          "text": "Soldados canalizan a la gente hacia dos filas que ya no creen en las mismas reglas. Una de ellas se mueve solo cuando alguien enseña algo."
+        },
+        {
+          "if": "state.flags includes siren_update",
+          "text": "Por encima de la multitud, una nueva orden por altavoz sugiere entradas secundarias y acceso escalonado. Casi nadie logra oírla entera."
+        }
+      ],
+      "options": [
+        {
+          "icon": "💥",
+          "label": "Entrar con la masa, como puedas",
+          "description": "Codos, respiración corta y cero delicadeza.",
+          "visibleHint": "BRUTO",
+          "timeCost": 24,
+          "effects": {
+            "panic": 2,
+            "survival": 1,
+            "groupTrust": 1,
+            "impulsiveness": 1
+          },
           "next": "ending",
-          "afterChoiceText": "Rodeas el edificio. La parte de atrás es una rampa de servicio. Hay una puerta. Está entreabierta. O no la había visto nadie, o no lleva a ninguna parte."
+          "afterChoiceText": "Empujas cuando empujan. La decisión ya no tiene lenguaje, solo fuerza."
+        },
+        {
+          "icon": "👁️",
+          "label": "Esperar un hueco y leer el movimiento",
+          "description": "La fila parece una criatura. Si respira, quizá también se abre.",
+          "visibleHint": "OBSERVAR",
+          "timeCost": 14,
+          "effects": {
+            "information": 1,
+            "observation": 2
+          },
+          "next": "ending",
+          "afterChoiceText": "Te apartas medio paso, miras cómo se forman los huecos y eliges el único que parece menos violento que los demás."
+        },
+        {
+          "icon": "🗣️",
+          "label": "Hablarle a alguien de la entrada y pedir ayuda",
+          "description": "No tienes autoridad, pero todavía tienes voz.",
+          "visibleHint": "PEDIR PASO",
+          "timeCost": 16,
+          "effects": {
+            "humanity": 1,
+            "attachment": 1,
+            "groupTrust": 1
+          },
+          "next": "ending",
+          "afterChoiceText": "Levantas la voz por encima del ruido y durante un segundo alguien te escucha como si todavía existiera algo parecido a un turno."
+        },
+        {
+          "icon": "↪️",
+          "label": "Buscar un lateral menos vigilado",
+          "description": "Donde todos miran al frente, los bordes empiezan a existir.",
+          "visibleHint": "DESVÍO",
+          "timeCost": 18,
+          "effects": {
+            "information": 1,
+            "autonomy": 1,
+            "observation": 1
+          },
+          "next": "ending",
+          "afterChoiceText": "Te pegas al muro, bordeas la fila y acabas viendo una esquina que desde el centro ni siquiera parecía entrada."
+        },
+        {
+          "icon": "🪪",
+          "label": "Enseñar documentos y pedir paso por la fila lenta",
+          "description": "No acelera el mundo. A veces evita que te expulse.",
+          "visibleHint": "IDENTIDAD",
+          "timeCost": 18,
+          "effects": {
+            "information": 1,
+            "systemTrust": 1
+          },
+          "requiredFlags": [
+            "documents"
+          ],
+          "blockedText": "Frente al control, tu identidad se queda sin voz antes de llegar a la boca.",
+          "next": "ending",
+          "afterChoiceText": "Levantás los papeles como si todavía existiera algo parecido a una ventanilla."
+        },
+        {
+          "icon": "📻",
+          "label": "Afinar la radio con pilas nuevas y buscar la orden buena",
+          "description": "A veces la salida no es otra puerta, sino otro dato.",
+          "visibleHint": "FRECUENCIA",
+          "timeCost": 12,
+          "effects": {
+            "information": 3,
+            "systemTrust": 1,
+            "observation": 2,
+            "panic": -1
+          },
+          "requiredFlags": [
+            "radio",
+            "batteries"
+          ],
+          "blockedText": "El silencio no responde.",
+          "addFlags": [
+            "heardSecondSignal"
+          ],
+          "next": "ending",
+          "afterChoiceText": "Entre estática y chasquidos aparece una voz más clara que el altavoz de fuera. Sabes algo antes que la masa."
+        },
+        {
+          "icon": "🔋",
+          "label": "Mirar la última ubicación compartida antes de que muera el móvil",
+          "description": "Un mapa encendido diez segundos más puede valer una cola menos.",
+          "visibleHint": "SEÑAL",
+          "timeCost": 10,
+          "effects": {
+            "information": 2,
+            "observation": 1
+          },
+          "requiredFlags": [
+            "powerBank"
+          ],
+          "blockedText": "La pantalla ya no tiene nada que darte excepto reflejo.",
+          "next": "ending",
+          "afterChoiceText": "La batería externa te compra una última comprobación y una ruta pegada a un muro menos saturado."
+        }
+      ],
+      "zone": "official_shelter",
+      "location": "Entrada del refugio oficial",
+      "mapPosition": "official_queue",
+      "spatialSummary": "Has llegado a la fila del refugio oficial, donde la puerta compite con la multitud.",
+      "sceneContext": "Estas frente a la entrada del refugio oficial. Hay vallas, una fila que se deforma y demasiada gente creyendo en la misma orden.",
+      "knownPlaces": [
+        "official_queue"
+      ],
+      "knownHints": [
+        "official_shelter_hint",
+        "system_saturated"
+      ]
+    },
+    "metro_route": {
+      "id": "metro_route",
+      "title": "BOCA ABAJO",
+      "atmosphere": "underground",
+      "icon": "🚇",
+      "text": "La boca del metro está tragándose gente a un ritmo que ya parece automático. Bajo tierra hay profundidad, sí, pero también demasiadas personas teniendo la misma idea al mismo tiempo.",
+      "textVariants": [
+        {
+          "if": "state.flags includes metro_full_hint",
+          "text": "La entrada del metro sigue atrayendo gente, pero ya no la miras igual. Recuerdas los audios del grupo: alguien dijo dos veces que el metro estaba lleno."
+        },
+        {
+          "if": "state.flags includes crowd_to_metro",
+          "text": "La escalera al metro es una cinta humana continua. Cada segundo ganas profundidad y pierdes aire."
+        },
+        {
+          "if": "state.flags includes stairwell_dark",
+          "text": "Abajo la iluminación es peor que arriba. El metro no siempre es luz bajo tierra; a veces es solo más sombra."
+        }
+      ],
+      "options": [
+        {
+          "icon": "👥",
+          "label": "Seguir a la multitud hasta donde se detenga",
+          "description": "Está cerca. Bajo tierra. Y eso basta para que demasiada gente piense lo mismo.",
+          "visibleHint": "SEGUIR FLUJO",
+          "timeCost": 20,
+          "effects": {
+            "panic": 2,
+            "survival": 1,
+            "groupTrust": 1
+          },
+          "next": "ending",
+          "afterChoiceText": "Te dejas arrastrar varios tramos hacia abajo hasta que el cuerpo colectivo decide parar."
+        },
+        {
+          "icon": "👁️",
+          "label": "Esperar junto a la barandilla y leer qué salida se vacía primero",
+          "description": "Si todo el mundo baja sin pensar, quizá aún puedas pensar antes de bajar tú.",
+          "visibleHint": "OBSERVAR",
+          "timeCost": 12,
+          "effects": {
+            "information": 1,
+            "observation": 2
+          },
+          "next": "ending",
+          "afterChoiceText": "Te apartas del centro, miras qué escalera colapsa primero y eliges la que todavía deja huecos entre cuerpos."
+        },
+        {
+          "icon": "↪️",
+          "label": "Buscar un lateral o un pasillo menos evidente",
+          "description": "En estaciones llenas, los bordes valen más que el centro.",
+          "visibleHint": "DESVÍO",
+          "timeCost": 15,
+          "effects": {
+            "information": 1,
+            "autonomy": 1
+          },
+          "next": "ending",
+          "afterChoiceText": "Bordeas la entrada principal y acabas encontrando una bajada peor señalizada, pero menos devorada por la masa."
+        },
+        {
+          "icon": "🔦",
+          "label": "Encender la linterna y buscar el andén ciego",
+          "description": "Las zonas que nadie ve suelen llenarse después.",
+          "visibleHint": "LUZ",
+          "timeCost": 16,
+          "effects": {
+            "preparation": 1,
+            "observation": 1
+          },
+          "requiredFlags": [
+            "flashlight"
+          ],
+          "blockedText": "Bajo tierra la oscuridad tiene demasiadas esquinas.",
+          "next": "ending",
+          "afterChoiceText": "La linterna encuentra un andén lateral casi vacío y por fin una decisión que parece tuya."
+        },
+        {
+          "icon": "📻",
+          "label": "Seguir la radio mientras aún pueda encenderse",
+          "description": "Necesitas saber si el metro es escondite o trampa.",
+          "visibleHint": "FRECUENCIA",
+          "timeCost": 12,
+          "effects": {
+            "information": 3,
+            "systemTrust": 1
+          },
+          "requiredFlags": [
+            "radio",
+            "batteries"
+          ],
+          "blockedText": "El silencio no te da profundidad. Solo eco.",
+          "addFlags": [
+            "heardSecondSignal"
+          ],
+          "next": "ending",
+          "afterChoiceText": "La radio confirma que la superficie ya no ofrece más verdad que la multitud."
+        }
+      ],
+      "zone": "metro",
+      "location": "Boca de metro",
+      "mapPosition": "metro_entrance",
+      "spatialSummary": "Estas en la entrada del metro, negociando profundidad a cambio de multitud.",
+      "sceneContext": "Estas en la boca del metro. La barandilla, las escaleras y la masa bajando dejan claro el tipo de riesgo que hay aqui.",
+      "knownPlaces": [
+        "metro_entrance"
+      ],
+      "knownHints": [
+        "metro_full_hint"
+      ]
+    },
+    "parking_route": {
+      "id": "parking_route",
+      "title": "RAMPA DEL PARKING",
+      "atmosphere": "strategic",
+      "icon": "🅿️",
+      "text": "Bajas por la rampa de entrada de un parking subterráneo del edificio de al lado. Ves columnas de hormigón, coches aparcados, una puerta metálica hacia las escaleras internas y una persiana cerrada del cuarto de mantenimiento. No es un refugio oficial. Pero sí es profundidad, techo y algo parecido a una elección.",
+      "textVariants": [
+        {
+          "if": "state.flags includes traffic_collapse",
+          "text": "Los coches inmóviles atascan la entrada superior, pero la rampa del parking sigue bajando entre columnas y ecos. La ciudad te hace sitio por accidente."
+        },
+        {
+          "if": "state.flags includes military_blockade",
+          "text": "El control militar mira hacia la avenida grande. Tú bajas por la rampa lateral del parking, fuera del foco, hacia un sótano que al menos tiene hormigón encima."
+        }
+      ],
+      "options": [
+        {
+          "icon": "🧱",
+          "label": "Refugiarte entre las columnas de hormigón",
+          "description": "No es buena cobertura, pero es lo más inmediato que tienes dentro del parking.",
+          "visibleHint": "COLUMNAS",
+          "timeCost": 18,
+          "effects": {
+            "panic": 2,
+            "injury": 1,
+            "survival": 1
+          },
+          "next": "ending",
+          "afterChoiceText": "Te pegas a una columna del parking, entre coches inmóviles y sombra sucia. No te convence. No necesitas que te convenza."
+        },
+        {
+          "icon": "👁️",
+          "label": "Esperar un hueco y leer el movimiento del parking",
+          "description": "Puede que no haya salida perfecta, pero sí una menos expuesta que el resto.",
+          "visibleHint": "OBSERVAR",
+          "timeCost": 10,
+          "effects": {
+            "information": 1,
+            "observation": 2
+          },
+          "next": "ending",
+          "afterChoiceText": "Te quedas quieto un segundo entre dos coches y mides qué zonas del parking reciben menos ruido, menos gente y menos mirada."
+        },
+        {
+          "icon": "🚪",
+          "label": "Probar la puerta metálica de las escaleras internas",
+          "description": "Tal vez no lleve a un refugio. Pero sí a otra capa del edificio.",
+          "visibleHint": "PUERTA",
+          "timeCost": 14,
+          "effects": {
+            "autonomy": 1,
+            "survival": 1
+          },
+          "next": "ending",
+          "afterChoiceText": "Empujas la puerta metálica con el hombro. No sabes adónde da todavía. Solo sabes que seguir en la rampa te expone más."
+        },
+        {
+          "icon": "🗝️",
+          "label": "Abrir la puerta metálica del parking con las llaves",
+          "description": "No sabes adónde lleva exactamente, pero al menos lleva más adentro.",
+          "visibleHint": "ACCESO",
+          "timeCost": 10,
+          "effects": {
+            "preparation": 1,
+            "autonomy": 1
+          },
+          "requiredFlags": [
+            "keys"
+          ],
+          "blockedText": "La puerta metálica sigue cerrada del lado de quien llegó sin llave.",
+          "next": "ending",
+          "afterChoiceText": "La llave no abre la barrera de coches, pero sí una puerta metálica junto a las escaleras internas. Te basta una rendija para dejar de estar expuesto."
+        },
+        {
+          "icon": "🗺️",
+          "label": "Seguir la captura hasta la zona de trasteros del parking",
+          "description": "El mapa no te da seguridad, pero sí te dice hacia qué rincón de hormigón moverte.",
+          "visibleHint": "TRAZA",
+          "timeCost": 12,
+          "effects": {
+            "information": 2,
+            "observation": 2,
+            "autonomy": 1,
+            "preparation": 1
+          },
+          "requiredFlags": [
+            "map"
+          ],
+          "blockedText": "Sin una traza en la cabeza, el parking entero se vuelve el mismo hormigón repetido.",
+          "next": "ending",
+          "afterChoiceText": "Sigues la captura memorizada entre columnas y coches inmóviles hasta una zona más hundida del parking, cerca de los trasteros."
+        },
+        {
+          "icon": "💧",
+          "label": "Dar agua y atención a la persona herida junto a la rampa",
+          "description": "No te mete más adentro del parking, pero sí evita que alguien se quede tirado en la entrada.",
+          "visibleHint": "AYUDA",
+          "timeCost": 20,
+          "effects": {
+            "humanity": 3,
+            "attachment": 1
+          },
+          "requiredFlags": [
+            "water",
+            "medicine"
+          ],
+          "blockedText": "No llevas nada con lo que bajar el dolor ni la sed.",
+          "addFlags": [
+            "helpedNeighbor"
+          ],
+          "next": "ending",
+          "afterChoiceText": "Le das un sorbo, una venda y un brazo mientras el eco rebota entre columnas. La entrada del parking se hace más lenta y más soportable."
+        }
+      ],
+      "zone": "parking",
+      "location": "Rampa del parking subterraneo",
+      "mapPosition": "parking_entrance",
+      "spatialSummary": "Estas bajando por la rampa del parking, todavia cerca de la calle pero ya bajo hormigon.",
+      "sceneContext": "Estas en la entrada del parking subterraneo del edificio cercano. Ves columnas, coches quietos, una puerta metalica y la persiana del cuarto de mantenimiento.",
+      "knownPlaces": [
+        "parking_entrance",
+        "parking_lower"
+      ]
+    },
+    "improvised_route": {
+      "id": "improvised_route",
+      "title": "PARKING SUBTERRÁNEO",
+      "atmosphere": "survival",
+      "icon": "🏚️",
+      "text": "Ya estás dentro del parking subterráneo del edificio cercano. Ves la rampa por la que has bajado, columnas de hormigón, coches aparcados, una puerta metálica de mantenimiento, una persiana cerrada y, al fondo, la zona de trasteros. Hay poca luz, eco y polvo. El peligro es claro: si eliges mal, te quedas en la parte más expuesta del parking sin verdadera cobertura.",
+      "textVariants": [
+        {
+          "if": "state.flags includes siren_update",
+          "text": "El altavoz no nombra este parking. Eso casi te tranquiliza: quizá tampoco lo nombre la multitud. Bajo tierra, el eco te devuelve cada ruido más cerca de lo que está."
+        },
+        {
+          "if": "state.flags includes traffic_collapse",
+          "text": "El tráfico colapsado arriba ha dejado este parking medio vacío y medio olvidado. Bajo el edificio hay hormigón, polvo y un cuarto de mantenimiento que quizá aún pueda abrirse."
+        }
+      ],
+      "options": [
+        {
+          "icon": "🧱",
+          "label": "Refugiarte entre columnas de hormigón",
+          "description": "No resuelve el parking, pero al menos te saca de la rampa y te deja bajo más hormigón.",
+          "visibleHint": "COLUMNAS",
+          "timeCost": 20,
+          "effects": {
+            "panic": 2,
+            "injury": 1,
+            "survival": 1
+          },
+          "next": "ending",
+          "afterChoiceText": "Te mueves entre columnas y coches aparcados hasta encontrar un ángulo algo menos expuesto. Sigues en el parking. Solo que ahora el hormigón te cubre mejor."
+        },
+        {
+          "icon": "⬇️",
+          "label": "Bajar a la zona de trasteros aunque el frío apriete",
+          "description": "Más abajo hay menos exposición, aunque también menos aire y menos margen para dudar.",
+          "visibleHint": "TRASTEROS",
+          "timeCost": 14,
+          "effects": {
+            "panic": 1,
+            "survival": 1,
+            "autonomy": 1
+          },
+          "next": "ending",
+          "afterChoiceText": "Desciendes hacia la zona de trasteros sin nada que suavice el frío. Aun así, cada metro ganado hacia abajo parece una decisión defendible."
+        },
+        {
+          "icon": "🚪",
+          "label": "Probar la puerta metálica de las escaleras internas",
+          "description": "Quizá no lleve a un sitio mejor, pero sí a una parte del edificio menos expuesta que la rampa.",
+          "visibleHint": "ESCALERAS",
+          "timeCost": 13,
+          "effects": {
+            "information": 1,
+            "autonomy": 1
+          },
+          "next": "ending",
+          "afterChoiceText": "Empujas la puerta metálica y cedes al instinto de moverte hacia dentro, aunque todavía no sepas hacia dónde."
+        },
+        {
+          "icon": "💶",
+          "label": "Convencer al encargado para abrir el cuarto de mantenimiento",
+          "description": "El efectivo no compra seguridad, pero a veces abre una puerta metálica en el momento exacto.",
+          "visibleHint": "EFECTIVO",
+          "timeCost": 14,
+          "effects": {
+            "information": 1,
+            "preparation": 1,
+            "groupTrust": 1,
+            "systemTrust": 1
+          },
+          "requiredFlags": [
+            "cash"
+          ],
+          "blockedText": "La persiana del cuarto de mantenimiento no atiende promesas hechas con las manos vacías.",
+          "next": "ending",
+          "afterChoiceText": "El encargado duda, mira el billete, mira la rampa y te hace un gesto corto hacia el cuarto de mantenimiento del parking."
+        },
+        {
+          "icon": "🧰",
+          "label": "Forzar la persiana del cuarto de mantenimiento",
+          "description": "No es limpio, pero el parking no te está ofreciendo opciones limpias.",
+          "visibleHint": "PALANCA",
+          "timeCost": 16,
+          "effects": {
+            "preparation": 2,
+            "impulsiveness": 1,
+            "autonomy": 2
+          },
+          "requiredFlags": [
+            "multiTool"
+          ],
+          "blockedText": "La chapa no cede a las uñas ni al deseo.",
+          "next": "ending",
+          "afterChoiceText": "La persiana del cuarto de mantenimiento sube lo justo para que pase una persona decidida y luego otra menos decidida."
+        },
+        {
+          "icon": "🧥",
+          "label": "Bajar a la zona de trasteros con abrigo y paciencia",
+          "description": "No es un refugio real, pero la parte baja del parking da más profundidad y menos exposición.",
+          "visibleHint": "ABRIGO",
+          "timeCost": 12,
+          "effects": {
+            "preparation": 1,
+            "survival": 1,
+            "observation": 1,
+            "panic": -1
+          },
+          "requiredFlags": [
+            "warmClothes"
+          ],
+          "blockedText": "La zona de trasteros del parking baja a un frío que tu cuerpo no quiere aguantar sin abrigo.",
+          "next": "ending",
+          "afterChoiceText": "Bajas hacia la zona de trasteros y te pegas a una pared de hormigón entre puertas numeradas y polvo antiguo."
+        }
+      ],
+      "zone": "improvised_shelter",
+      "location": "Interior del parking subterraneo",
+      "mapPosition": "improvised_columns",
+      "spatialSummary": "Ya estas dentro del parking, eligiendo que parte del hormigon te protege mejor y cual te deja expuesto.",
+      "sceneContext": "Estas dentro del parking subterraneo. A un lado queda la rampa, al otro la zona de trasteros, una puerta metalica y el cuarto de mantenimiento.",
+      "knownPlaces": [
+        "parking_entrance",
+        "parking_lower",
+        "improvised_columns"
+      ]
+    }
+  },
+  "endings": {
+    "safe_official": {
+      "title": "PUERTA DE ACERO",
+      "originTitle": "El que llegó con plan",
+      "baseText": "La hoja metálica termina de cerrarse detrás de ti. Dentro no hay alivio, solo aire compartido y la sensación brutal de haber acertado en el tramo exacto de la carrera.",
+      "fragments": [
+        {
+          "if": "state.flags includes heardSecondSignal",
+          "text": "\n\nEscuchaste antes que muchos que la ciudad aún mantenía acceso. Ese dato no te salvó solo, pero sí en el segundo correcto."
+        },
+        {
+          "if": "state.flags includes documents",
+          "text": "\n\nTus papeles sirvieron menos como identidad que como permiso para no desaparecer en la fila equivocada."
+        },
+        {
+          "if": "state.flags includes familyPhoto",
+          "text": "\n\nMetes la mano en el bolsillo y notas el borde de la foto. No estás bien, pero tampoco estás vacío."
+        },
+        {
+          "if": "state.flags includes calledFamily",
+          "text": "\n\nLa llamada ya no suena a despedida. Suena a prueba de que estabas vivo justo antes de entrar."
+        }
+      ]
+    },
+    "late_official": {
+      "title": "FILA SELLADA",
+      "originTitle": "El que vio cerrarse la puerta",
+      "baseText": "Llegas cuando el refugio ya ha empezado a decidir a quién pertenece el dentro. La puerta sigue moviéndose. Tú ya no entras con ella.",
+      "fragments": [
+        {
+          "if": "state.flags includes helpedNeighbor",
+          "text": "\n\nLa persona a la que ayudaste cruza antes que tú o a tu lado. No sabes si eso empeora o limpia algo."
+        },
+        {
+          "if": "state.flags includes familyPhoto",
+          "text": "\n\nLa foto en el bolsillo pesa más justo ahora, cuando ya no hay ninguna mano libre para agarrarse a ella."
+        },
+        {
+          "if": "state.flags includes officialShelterSaturated",
+          "text": "\n\nLo sabías: el problema no era encontrar el refugio. Era llegar antes que la noticia de su existencia."
+        }
+      ]
+    },
+    "alternate_route": {
+      "title": "LA ENTRADA INVISIBLE",
+      "originTitle": "El que leyó la ciudad",
+      "baseText": "La rampa lateral te traga con un silencio casi ofensivo. Sobreviviste no por correr más, sino por salir por donde casi nadie pensó mirar.",
+      "fragments": [
+        {
+          "if": "state.flags includes map",
+          "text": "\n\nEl mapa no era solo información. Era permiso para desconfiar de la avenida principal."
+        },
+        {
+          "if": "state.flags includes keys",
+          "text": "\n\nLas llaves, tan domésticas hace media hora, se vuelven herramienta de acceso a un mundo secundario."
+        },
+        {
+          "if": "state.flags includes water",
+          "text": "\n\nEl agua deja de ser equipaje y empieza a parecer un pequeño sistema de gobierno."
+        },
+        {
+          "if": "state.flags includes helpedNeighbor",
+          "text": "\n\nNo llegaste solo. Eso cambia la geometría moral de todo el final."
+        }
+      ]
+    },
+    "improvised_shelter": {
+      "title": "PARKING SUBTERRÁNEO",
+      "originTitle": "El que improvisó",
+      "baseText": "No era un refugio oficial. Era un parking subterráneo bajo un edificio cercano, con columnas de hormigón, coches quietos, eco y polvo viejo. Precisamente por eso seguía teniendo hueco cuando casi todo lo demás ya se había llenado.",
+      "fragments": [
+        {
+          "if": "state.flags includes warmClothes",
+          "text": "\n\nEl abrigo no te salva de nada espectacular. Te salva del temblor absurdo de los minutos de después."
+        },
+        {
+          "if": "state.flags includes multiTool",
+          "text": "\n\nLa herramienta termina descansando en tu mano como si siempre hubiera sido un talismán y no un hierro de cajón."
+        },
+        {
+          "if": "state.flags includes cash",
+          "text": "\n\nTodavía no sabes si pagaste una entrada o compraste una última grieta en el sistema."
+        }
+      ]
+    },
+    "metro_survivor": {
+      "title": "ANDÉN CIEGO",
+      "originTitle": "El que bajó al metro",
+      "baseText": "El metro aguanta porque ya estaba hecho para contener demasiada gente y demasiada espera. Sobrevives oyendo respirar a desconocidos a menos de un metro de tu cara.",
+      "fragments": [
+        {
+          "if": "state.flags includes flashlight",
+          "text": "\n\nLa linterna convierte un rincón lateral en sitio, y un sitio en posibilidad."
+        },
+        {
+          "if": "state.flags includes heardSecondSignal",
+          "text": "\n\nLa segunda señal te deja entender que esta profundidad era fea, sí, pero suficiente."
+        },
+        {
+          "if": "state.flags includes familyPhoto",
+          "text": "\n\nEn la oscuridad te aprendes la foto de memoria con la yema de los dedos."
+        }
+      ]
+    },
+    "sacrificed": {
+      "title": "EL HUECO QUE CEDISTE",
+      "originTitle": "El que dejó pasar a otro",
+      "baseText": "Tu sitio acaba siendo de otra persona: alguien herido, alguien más lento, alguien que llegó peor. La puerta, la rampa o la sombra alcanzan a esa otra vida antes que a la tuya.",
+      "fragments": [
+        {
+          "if": "state.humanity >= 6",
+          "text": "\n\nNo te consuela sentirte mejor persona. Tampoco lo invalida."
+        },
+        {
+          "if": "state.flags includes calledFamily",
+          "text": "\n\nMenos mal que llamaste antes. Hay finales que al menos no terminan en silencio."
+        },
+        {
+          "if": "state.flags includes helpedNeighbor",
+          "text": "\n\nLa deuda moral no desaparece: se transforma en elección explícita."
+        }
+      ]
+    },
+    "injured_survivor": {
+      "title": "SOBREVIVIR COJEANDO",
+      "originTitle": "El que llegó roto",
+      "baseText": "Sobrevives, pero tu cuerpo llega con una factura que va a tardar en entenderse. Cada peldaño mal tomado se queda contigo cuando la cuenta atrás ya ha terminado.",
+      "fragments": [
+        {
+          "if": "state.flags includes medicine",
+          "text": "\n\nLlevar medicina no evitó el daño, pero sí evitó que el dolor mandara completamente."
+        },
+        {
+          "if": "state.flags includes warmClothes",
+          "text": "\n\nTe cubres como quien intenta convencer al cuerpo de que ya puede dejar de huir."
+        },
+        {
+          "if": "state.flags includes familyPhoto",
+          "text": "\n\nLa foto parece ahora la prueba de que este cuerpo roto seguía teniendo a quién volver."
+        }
+      ]
+    },
+    "alone_prepared": {
+      "title": "INVENTARIO COMPLETO",
+      "originTitle": "El que llegó abastecido",
+      "baseText": "Tienes casi todo lo que hace falta: agua, luz, acceso, margen. Lo que no tienes es demasiada gente a tu alrededor que quiera recordar cómo llegaste aquí.",
+      "fragments": [
+        {
+          "if": "state.flags includes radio",
+          "text": "\n\nLa radio te da más control que compañía. Esta vez eliges no confundir las dos cosas."
+        },
+        {
+          "if": "state.flags includes powerBank",
+          "text": "\n\nTu móvil sigue vivo más que muchos planes ajenos. Eso te hace útil y un poco inaccesible."
+        },
+        {
+          "if": "state.flags includes ignoredNeighbor",
+          "text": "\n\nLa preparación no logra tapar del todo la voz que dejaste arriba."
+        }
+      ]
+    },
+    "human_but_unprepared": {
+      "title": "LO CORRECTO NO BASTÓ",
+      "originTitle": "El que llegó con las manos abiertas",
+      "baseText": "Sobrevives o casi sobrevives en el borde exacto entre haber hecho lo humano y no haber tenido con qué sostenerlo del todo. Nadie te diría que elegiste mal a la cara. Tú no estás tan seguro.",
+      "fragments": [
+        {
+          "if": "state.flags includes sentLocation",
+          "text": "\n\nAl menos alguien sabrá cómo intentaste estar a la altura de otros."
+        },
+        {
+          "if": "state.flags includes familyPhoto",
+          "text": "\n\nLlevaste contigo una pequeña prueba de amor y no suficientes herramientas para convertirla en estrategia."
+        },
+        {
+          "if": "state.flags includes helpedNeighbor",
+          "text": "\n\nLa ayuda real nunca fue gratis. Solo que esta vez el coste se te queda escrito más cerca."
+        }
+      ]
+    },
+    "lost": {
+      "title": "FUERA DE COBERTURA",
+      "originTitle": "El que se quedó fuera",
+      "baseText": "No hay puerta, rampa ni andén que termine de cerrarse a tiempo a tu alrededor. La ciudad sigue teniendo huecos; ninguno ya es para ti.",
+      "fragments": [
+        {
+          "if": "state.panic >= 6",
+          "text": "\n\nCorres mucho rato sin terminar de salir del mismo miedo."
+        },
+        {
+          "if": "state.flags includes ignoredNeighbor",
+          "text": "\n\nEn los últimos segundos vuelve una voz de la escalera como si hubiera estado corriendo a tu lado todo el tiempo."
+        },
+        {
+          "if": "state.flags includes calledFamily",
+          "text": "\n\nLo último que no se borra es haber oído a alguien decir tu nombre antes del ruido."
         }
       ]
     }
   },
-
-  "endings": {
-    "safe_official": {
-      "title": "EL REFUGIO",
-      "originTitle": "El que llegó a tiempo",
-      "baseText": "La puerta se cierra detrás de ti con un sonido metálico que no vas a olvidar. Estás dentro. Estás vivo. Hay luz amarilla, hay olor a hormigón, hay gente llorando bajito.",
-      "fragments": [
-        { "if": "state.flags includes helpedNeighbor", "text": "\n\nA tu lado, tu vecina te aprieta la mano. No dice nada. No hace falta." },
-        { "if": "state.flags includes ignoredNeighbor", "text": "\n\nCierras los ojos. Cada vez que parpadeas ves un felpudo y una mano levantada. Vas a vivir muchos años con eso." },
-        { "if": "state.flags includes calledFamily", "text": "\n\nPiensas en la voz de tu madre. 'Tú escóndete.' Te has escondido." },
-        { "if": "state.preparation >= 5", "text": "\n\nAbres la mochila. Sacas el agua, la radio, lo justo. Alrededor, te miran como si fueras de otro planeta. De uno que sí leía los folletos." },
-        { "if": "state.flags includes injuredLeg", "text": "\n\nLa pierna te late. Pero late, que es lo importante." }
-      ]
-    },
-    "late_official": {
-      "title": "EL REFUGIO CERRADO",
-      "originTitle": "El que llegó justo después",
-      "baseText": "Llegas a la entrada. La puerta de acero se está cerrando. La empujas con las dos manos. Te miran desde dentro. Hay sitio. Hay aire. Pero el protocolo es el protocolo y faltan segundos.",
-      "fragments": [
-        { "if": "state.flags includes helpedNeighbor", "text": "\n\nTu vecina te suelta el brazo. 'Vete tú,' dice. No te vas. Ya no hay tiempo de irse." },
-        { "if": "state.flags includes ignoredNeighbor", "text": "\n\nPiensas en el rellano. En los segundos que ganaste allí. Los mismos segundos que ahora te faltan." },
-        { "if": "state.flags includes calledFamily", "text": "\n\nTu madre te dijo que te escondieras. No le hiciste caso a tiempo." }
-      ]
-    },
-    "improvised": {
-      "title": "EL SÓTANO",
-      "originTitle": "El que improvisó",
-      "baseText": "Tres plantas bajo tierra. Hormigón, frío, oscuridad casi total. Hay un coche detrás de ti y dos personas más al fondo que no conoces y a las que probablemente vas a conocer demasiado. No es un refugio. Pero es bajo tierra. Y es lo que tienes.",
-      "fragments": [
-        { "if": "state.flags includes flashlight", "text": "\n\nEnciendes la linterna. Las otras dos personas levantan la cabeza como si hubieras encendido un sol pequeño." },
-        { "if": "state.flags includes radio", "text": "\n\nEnciendes la radio. Estática. Más estática. Y luego, de repente, una voz contando algo en otro idioma." },
-        { "if": "state.flags includes helpedNeighbor", "text": "\n\nTu vecina respira fuerte a tu lado. No vas a estar solo." },
-        { "if": "state.flags includes water", "text": "\n\nSacas la botella. La pones en el suelo, en el centro. Que dure." },
-        { "if": "state.humanity >= 5", "text": "\n\nAlguien al fondo dice gracias. No sabes muy bien por qué." }
-      ]
-    },
-    "metro_survivor": {
-      "title": "BAJO TIERRA",
-      "originTitle": "El que bajó al metro",
-      "baseText": "El último vagón. La gente está apretada contra las paredes de azulejo blanco. Alguien apaga las luces para ahorrar. En la oscuridad, se oye respirar a doscientas personas a la vez.",
-      "fragments": [
-        { "if": "state.flags includes heardSecondSignal", "text": "\n\nLa segunda señal era una confirmación: impacto a treinta kilómetros. No encima. No esta vez." },
-        { "if": "state.flags includes helpedNeighbor", "text": "\n\nTu vecina está sentada en el suelo, contigo apoyado en su hombro. Tú creías que la salvabas a ella." },
-        { "if": "state.flags includes ignoredNeighbor", "text": "\n\nEn la oscuridad la imaginas. Sentada en su felpudo. Pero la imaginas. Es lo único que puedes hacer." },
-        { "if": "state.preparation >= 4", "text": "\n\nLa gente alrededor se da cuenta de que tienes cosas en la mochila. Decides compartir antes de que te las pidan." }
-      ]
-    },
-    "alternate_route": {
-      "title": "EL QUE LEYÓ EL MAPA",
-      "originTitle": "El que leyó el mapa",
-      "baseText": "El párking subterráneo. Tres plantas bajo tierra. Casi nadie sabía que existía. Tú sí. Te buscaste el mapa cuando todo el mundo corría sin saber adónde, y eso fue lo que te separó del resto de la gente.",
-      "fragments": [
-        { "if": "state.flags includes helpedNeighbor", "text": "\n\nY no fuiste solo. La trajiste contigo. Tardasteis más. Llegasteis igual." },
-        { "if": "state.flags includes calledFamily", "text": "\n\nVas a contárselo a tu madre. Cuando vuelva a haber teléfonos." },
-        { "if": "state.humanity >= 4", "text": "\n\nLas otras personas que están aquí, las pocas, te miran como si fueras algo entre un héroe y una persona muy rara. Aceptas las dos." },
-        { "if": "state.flags includes radio", "text": "\n\nEnciendes la radio. Y por primera vez en treinta minutos, oyes una voz tranquila." }
-      ]
-    },
-    "sacrificed": {
-      "title": "LO QUE DEJASTE FUERA",
-      "originTitle": "El que cedió su sitio",
-      "baseText": "No entras. La puerta se cierra y al otro lado queda la niña a la que cediste el sitio. O tu vecina, que ya no puede correr. O la persona a la que diste tu agua. Quien sea, está dentro. Tú no.\n\nTe sientas en el escalón. Miras hacia arriba. El cielo está muy raro.",
-      "fragments": [
-        { "if": "state.flags includes helpedNeighbor", "text": "\n\nLa última cara que viste fue la suya, diciéndote que entraras tú. No le hiciste caso." },
-        { "if": "state.humanity >= 8", "text": "\n\nNo es valentía. Es que no sabías hacerlo de otra forma." },
-        { "if": "state.flags includes calledFamily", "text": "\n\nMenos mal que llamaste antes." }
-      ]
-    },
-    "lost": {
-      "title": "DEMASIADO TARDE",
-      "originTitle": "El que no llegó",
-      "baseText": "No llegas. La calle, el ruido, la luz blanquísima. No hay refugio que valga.",
-      "fragments": [
-        { "if": "state.panic >= 5", "text": "\n\nNunca dejaste de correr en círculos. Sin mapa. Sin plan. Sin nadie." },
-        { "if": "state.flags includes ignoredNeighbor", "text": "\n\nLos últimos doce segundos los pasas pensando en un felpudo." },
-        { "if": "state.flags includes helpedNeighbor", "text": "\n\nNo llegasteis. Pero al menos no fue sola." },
-        { "if": "state.humanity >= 4", "text": "\n\nHiciste lo correcto en cada esquina. La aritmética del desastre no premia eso." }
-      ]
-    }
-  },
-
   "endingRules": [
-    { "if": { "timeLeftMax": 0 }, "ending": "lost" },
-    { "if": { "flag": "wentToBasement", "timeLeftMin": 1 }, "ending": "alternate_route" },
-    { "if": { "flag": "wentToMetro", "timeLeftMin": 30 }, "ending": "metro_survivor" },
-    { "if": { "flag": "wentToOfficialShelter", "timeLeftMin": 60 }, "ending": "safe_official" },
-    { "if": { "flag": "wentToOfficialShelter", "timeLeftMin": 1 }, "ending": "late_official" },
-    { "if": { "humanityMin": 8, "timeLeftMax": 30 }, "ending": "sacrificed" },
-    { "if": { "timeLeftMin": 1 }, "ending": "improvised" }
+    {
+      "if": "state.timeLeft <= 0",
+      "ending": "lost"
+    },
+    {
+      "if": "state.flags includes routeOfficial && state.timeLeft >= 45 && state.preparation >= 3 && state.injury <= 1",
+      "ending": "safe_official"
+    },
+    {
+      "if": "state.flags includes routeOfficial && state.timeLeft >= 10",
+      "ending": "late_official"
+    },
+    {
+      "if": "state.flags includes routeMetro && state.injury >= 2 && state.timeLeft >= 1",
+      "ending": "injured_survivor"
+    },
+    {
+      "if": "state.flags includes routeMetro && state.timeLeft >= 1",
+      "ending": "metro_survivor"
+    },
+    {
+      "if": "state.flags includes routeAlternate && state.humanity >= 7 && state.preparation <= 3 && state.timeLeft <= 35",
+      "ending": "sacrificed"
+    },
+    {
+      "if": "state.flags includes routeAlternate && state.timeLeft >= 1",
+      "ending": "alternate_route"
+    },
+    {
+      "if": "state.flags includes routeImprovised && state.injury >= 2 && state.timeLeft >= 1",
+      "ending": "injured_survivor"
+    },
+    {
+      "if": "state.flags includes routeImprovised && state.humanity >= 6 && state.preparation <= 3 && state.timeLeft >= 1",
+      "ending": "human_but_unprepared"
+    },
+    {
+      "if": "state.flags includes routeImprovised && state.timeLeft >= 1",
+      "ending": "improvised_shelter"
+    },
+    {
+      "if": "state.preparation >= 7 && state.humanity <= 1 && state.timeLeft >= 1",
+      "ending": "alone_prepared"
+    },
+    {
+      "if": "state.humanity >= 7 && state.preparation <= 3 && state.timeLeft >= 1",
+      "ending": "human_but_unprepared"
+    },
+    {
+      "if": "state.injury >= 2 && state.timeLeft >= 1",
+      "ending": "injured_survivor"
+    },
+    {
+      "if": "state.timeLeft >= 1",
+      "ending": "lost"
+    }
   ]
 }
